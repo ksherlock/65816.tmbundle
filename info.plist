@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>contactEmailRot13</key>
+	<string>xfureybpx@tznvy.pbz</string>
+	<key>contactName</key>
+	<string>Kelvin Sherlock</string>
+	<key>description</key>
+	<string>Myriad 65816 assemblers
+
+Currently supported:
+- NinjaForce Assembler
+
+</string>
+	<key>name</key>
+	<string>65816</string>
+	<key>uuid</key>
+	<string>CBDD61FC-3FBC-4DA1-A2CB-EDD2ACBD80DD</string>
+</dict>
+</plist>
