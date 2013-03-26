@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>ORCA/M Folding</string>
+	<key>scope</key>
+	<string>source.asm.65816.orcam</string>
+	<key>settings</key>
+	<dict>
+		<key>foldingStartMarker</key>
+		<string>\b(?i:START|DATA|PRIVDATA)\b</string>
+		<key>foldingStopMarker</key>
+		<string>\b(?i:END)\b</string>
+	</dict>
+	<key>uuid</key>
+	<string>E6E1F427-4498-4E25-BDCB-72387FB43EDA</string>
+</dict>
+</plist>
