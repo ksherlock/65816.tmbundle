@@ -15,8 +15,24 @@
 			<string>source.asm.65816</string>
 		</dict>
 		<dict>
+			<key>include</key>
+			<string>source.asm.65816#long_mnemonics</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>source.asm.65816#hex_number</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>source.asm.65816#binary_number</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>source.asm.65816#decimal_number</string>
+		</dict>
+		<dict>
 			<key>match</key>
-			<string>\b(?i:BLT|BGT|BGE)\b</string>
+			<string>\b(?i:BLT|BGE)\b</string>
 			<key>name</key>
 			<string>keyword.mnemonic.65816.alt</string>
 		</dict>
@@ -72,6 +88,37 @@
 			</array>
 		</dict>
 		<dict>
+			<key>begin</key>
+			<string>\b((?i)HEX)\b</string>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>HEX has a list of hex bytes w/o the $</string>
+			<key>end</key>
+			<string>$|;</string>
+			<key>name</key>
+			<string>meta.hex</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>\b[0-9A-Fa-f]{1,2}\b</string>
+					<key>name</key>
+					<string>constant.numeric.hex</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>$self</string>
+				</dict>
+			</array>
+		</dict>
+		<dict>
 			<key>match</key>
 			<string>(?&lt;=,)([xXyYsS])\b</string>
 			<key>name</key>
@@ -94,24 +141,6 @@
 			<string>;.*</string>
 			<key>name</key>
 			<string>comment.line</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\$[A-Za-z0-9]+</string>
-			<key>name</key>
-			<string>constant.numeric.hex</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>%[01]+</string>
-			<key>name</key>
-			<string>constant.numeric.binary</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b[0-9]+\b</string>
-			<key>name</key>
-			<string>constant.numeric.decimal</string>
 		</dict>
 		<dict>
 			<key>match</key>

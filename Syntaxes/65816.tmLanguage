@@ -15,6 +15,37 @@
 			<string>keyword.mnemonic.65816</string>
 		</dict>
 	</array>
+	<key>repository</key>
+	<dict>
+		<key>binary_number</key>
+		<dict>
+			<key>match</key>
+			<string>%[01]+</string>
+			<key>name</key>
+			<string>constant.numeric.binary</string>
+		</dict>
+		<key>decimal_number</key>
+		<dict>
+			<key>match</key>
+			<string>\b([0-9]+)\b</string>
+			<key>name</key>
+			<string>constant.numeric.decimal</string>
+		</dict>
+		<key>hex_number</key>
+		<dict>
+			<key>match</key>
+			<string>\$[A-Za-z0-9]+</string>
+			<key>name</key>
+			<string>constant.numeric.hex</string>
+		</dict>
+		<key>long_mnemonics</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65816.long</string>
+		</dict>
+	</dict>
 	<key>scopeName</key>
 	<string>source.asm.65816</string>
 	<key>uuid</key>
