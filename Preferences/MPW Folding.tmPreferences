@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>MPW Folding</string>
+	<key>scope</key>
+	<string>source.asm.65816.mpw</string>
+	<key>settings</key>
+	<dict>
+		<key>foldingStartMarker</key>
+		<string>\b(?i:FUNC|INIT|PROC|RECORD|STACKDP|WITH|MACRO)\b</string>
+		<key>foldingStopMarker</key>
+		<string>\b(?i:ENDF|ENDFUNC|ENDI|ENDP|ENDPROC|ENDR|ENDSTACK|ENDWITH|ENDM|ENDMACRO|MEND)\b</string>
+	</dict>
+	<key>uuid</key>
+	<string>0336F07E-4801-40D6-8AB0-0D3F8DF88070</string>
+</dict>
+</plist>

@@ -17,6 +17,27 @@
 	</array>
 	<key>repository</key>
 	<dict>
+		<key>M6502</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.6502</string>
+		</dict>
+		<key>M65816</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65816</string>
+		</dict>
+		<key>M65C02</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65c02</string>
+		</dict>
 		<key>binary_number</key>
 		<dict>
 			<key>match</key>
@@ -44,6 +65,13 @@
 			<string>\b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b</string>
 			<key>name</key>
 			<string>keyword.mnemonic.65816.long</string>
+		</dict>
+		<key>octal_number</key>
+		<dict>
+			<key>match</key>
+			<string>@([0-7]+)\b</string>
+			<key>name</key>
+			<string>constant.numeric.octal</string>
 		</dict>
 	</dict>
 	<key>scopeName</key>

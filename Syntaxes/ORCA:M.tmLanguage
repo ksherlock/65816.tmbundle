@@ -28,6 +28,10 @@
 			<string>source.asm.65816#decimal_number</string>
 		</dict>
 		<dict>
+			<key>include</key>
+			<string>source.asm.65816#octal_number</string>
+		</dict>
+		<dict>
 			<key>match</key>
 			<string>\b(?i:BLT|BGE|CPA)\b</string>
 			<key>name</key>
@@ -73,6 +77,48 @@
 			<string>entity.name.label</string>
 		</dict>
 		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>eg: LONGA ON</string>
+			<key>match</key>
+			<string>\b((?i)ABSADDR|CASE|CODECHK|DATACHECK|DYNCHK|ERR|EXPAND|IEEE|INSTIME|LIST|LONGA|LONGI|MSB|NUMSEX|OBJCASE|PRINTER|SYMBOL|65C02|65816)\s+((?i)ON|OFF)</string>
+			<key>name</key>
+			<string>meta.onoff.directive</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>string.quoted.other.path</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>eg: KEEP pathname</string>
+			<key>match</key>
+			<string>\b((?i)APPEND|COPY|KEEP|MCOPY)\s+(\S*)</string>
+			<key>name</key>
+			<string>meta.path.directive</string>
+		</dict>
+		<dict>
 			<key>match</key>
 			<string>\b(?i:ABSADDR|ALIGN|ANOP|APPEND|CASE|CODECHK|COPY|DATA|DATACHK|DC|DIRECT|DS|DYNCHK|EJECT|END|ENTRY|EQU|ERR|EXPAND|GEQU|IEEE|INSTIME|KEEP|KIND|LIST|LONGA|LONGI|MCOPY|MEM|MERR|MSB|NUMSEX|OBJ|OBJCASE|OBJEND|ORG|PRINTER|PRIVATE|PRIVDATA|RENAME|SETCOM|START|SYMBOL|TITLE|USING|65C02|65816)\b</string>
 			<key>name</key>
@@ -80,25 +126,19 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>@[0-7]+</string>
-			<key>name</key>
-			<string>constant.numeric.octal</string>
-		</dict>
-		<dict>
-			<key>match</key>
 			<string>\b[aA]\b</string>
 			<key>name</key>
-			<string>variable.language</string>
+			<string>variable.language.register</string>
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>(?&lt;=,)([xXyY])\b</string>
+			<string>(?&lt;=,)([xXyYsS])\b</string>
 			<key>name</key>
-			<string>variable.language</string>
+			<string>variable.language.register</string>
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>[=&lt;&gt;+-/|*#()^]|(&lt;&gt;|&lt;=|&gt;=)</string>
+			<string>[=&lt;&gt;+-/|*#()^\[\]]|(&lt;&gt;|&lt;=|&gt;=)</string>
 			<key>name</key>
 			<string>keyword.operator</string>
 		</dict>
