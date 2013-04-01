@@ -49,6 +49,63 @@
 			<string>keyword.mnemonic.other</string>
 		</dict>
 		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.function</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^([A-Za-z@_~][A-Za-z0-9@_~%$#]*)\s+((?i)PROC|PROCNAME|FUNC|INIT|STACKDP)\b</string>
+			<key>name</key>
+			<string>meta.function</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.function</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>\b((?i)ENTRY)\s+([A-Za-z@_~][A-Za-z0-9@_~%$#]*)\b</string>
+			<key>name</key>
+			<string>meta.entry</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.record</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^([A-Za-z@_~][A-Za-z0-9@_~%$#]*)\s+((?i)RECORD)\b</string>
+			<key>name</key>
+			<string>meta.record</string>
+		</dict>
+		<dict>
 			<key>match</key>
 			<string>^[A-Za-z@_~][A-Za-z0-9@_~%$#]*\b</string>
 			<key>name</key>
@@ -143,16 +200,169 @@
 			</array>
 		</dict>
 		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>eg: LONGA ON</string>
 			<key>match</key>
-			<string>\b(?i:ALIGN|BLANKS|CASE|CODE|CODECHK|DATACHK|DIRECT|DUMP|EJECT|END|ENDF|ENDFUNC|ENDI|ENDP|ENDPROC|END_PROC|ENDR|ENDSTACK|ENDWITH|ENTRY|EQU|EXPORT|FUNC|IMPORT|INCLUDE|INIT|LOAD|LONGA|LONGI|MACHINE|MSB|ORG|PAGESIZE|PRINT|PROC|RECORD|SEG|SEGATTR|SET|SPACE|STACKDP|STRING|TITLE|WITH)\b</string>
+			<string>\b((?i)CODECHK|DATACHK|LONGA|LONGI|MSB)\s+((?i)ON|OFF)\b</string>
+			<key>name</key>
+			<string>meta.onoff.directive</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>\b((?i)STRING)\s+((?i)ASIS|PASCAL|C|GS/OS)\b</string>
+			<key>name</key>
+			<string>meta.string.directive</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>\b((?i)BLANKS)\s+((?i)ON|OFF|YES|NO|Y|N)\b</string>
+			<key>name</key>
+			<string>meta.blanks.directive</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>\b((?i)BLANKS)\s+((?i)ON|OFF|YES|NO|Y|N|OBJECT|OBJ)\b</string>
+			<key>name</key>
+			<string>meta.case.directive</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>\b((?i)MACHINE)\s+((?i)M65816|M6502|M65C02|M65CX02|M740)\b</string>
+			<key>name</key>
+			<string>meta.machine.directive</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>\b((?i)PRINT)\b</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive</string>
+				</dict>
+			</dict>
+			<key>end</key>
+			<string>$</string>
+			<key>name</key>
+			<string>meta.print.directive</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>;.*</string>
+					<key>name</key>
+					<string>comment.line</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>\b(?i:ON|OFF|PUSH|POP)\b</string>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>\b(?i:NO)?(?i:GEN|PAGE|WARN|MCALL|OBJ|DATA|MDIR|HDR|LITS|STAT|SYM)\b</string>
+					<key>name</key>
+					<string>constant.language</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>[^,\t ]</string>
+					<key>name</key>
+					<string>invalid.illegal.operand</string>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ALIGN|BLANKS|CASE|CODE|CODECHK|DATACHK|DIRECT|DUMP|EJECT|END|ENDF|ENDFUNC|ENDI|ENDP|ENDPROC|END_PROC|ENDR|ENDSTACK|ENDS|ENDWITH|ENTRY|EQU|EXPORT|FUNC|IMPORT|INCLUDE|INIT|LOAD|LONGA|LONGI|MACHINE|MSB|ORG|PAGESIZE|PRINT|PROC|RECORD|SEG|SEGATTR|SET|SPACE|STACKDP|STRING|TITLE|WITH)\b</string>
 			<key>name</key>
 			<string>keyword.directive</string>
 		</dict>
 		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.directive.data</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>storage.type</string>
+				</dict>
+			</dict>
 			<key>match</key>
-			<string>\b(?i:(DC|DCB|DS))([.].)?\b</string>
+			<string>\b((?i)DC|DCB|DS)([.](.))?\b</string>
 			<key>name</key>
-			<string>keyword.directive.data</string>
+			<string>meta.dc.directive</string>
 		</dict>
 		<dict>
 			<key>match</key>

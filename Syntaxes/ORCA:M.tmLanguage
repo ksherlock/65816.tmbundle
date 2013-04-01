@@ -93,7 +93,7 @@
 			<key>comment</key>
 			<string>eg: LONGA ON</string>
 			<key>match</key>
-			<string>\b((?i)ABSADDR|CASE|CODECHK|DATACHECK|DYNCHK|ERR|EXPAND|IEEE|INSTIME|LIST|LONGA|LONGI|MSB|NUMSEX|OBJCASE|PRINTER|SYMBOL|65C02|65816)\s+((?i)ON|OFF)</string>
+			<string>\b((?i)ABSADDR|CASE|CODECHK|DATACHECK|DYNCHK|ERR|EXPAND|IEEE|INSTIME|LIST|LONGA|LONGI|MSB|NUMSEX|OBJCASE|PRINTER|SYMBOL|65C02|65816)\s+((?i)ON|OFF)\b</string>
 			<key>name</key>
 			<string>meta.onoff.directive</string>
 		</dict>

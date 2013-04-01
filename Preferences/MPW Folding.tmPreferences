@@ -9,7 +9,7 @@
 	<key>settings</key>
 	<dict>
 		<key>foldingStartMarker</key>
-		<string>\b(?i:FUNC|INIT|PROC|RECORD|STACKDP|WITH|MACRO)\b</string>
+		<string>\b(?i:FUNC|INIT|PROC|PROCNAME|RECORD|STACKDP|WITH|MACRO)\b</string>
 		<key>foldingStopMarker</key>
 		<string>\b(?i:ENDF|ENDFUNC|ENDI|ENDP|ENDPROC|ENDR|ENDSTACK|ENDWITH|ENDM|ENDMACRO|MEND)\b</string>
 	</dict>
