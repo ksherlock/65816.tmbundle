@@ -1,7 +1,7 @@
 65816.tmbundle
 ==============
 
-This is a TextMate/Sublime Text bundle for WDC's 65816 assembly language.  Some effort is taken to be 
+This is a TextMate bundle for WDC's 65816 assembly language (Don't try it in sublime text... it crashes).  Some effort is taken to be 
 slightly intelligent about some opcode/operand pairs.
 
 Currently supported:
