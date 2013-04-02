@@ -12,6 +12,9 @@
 Currently supported:
 - NinjaForce Assembler
 - ORCA/M Assembler
+- MPW
+- Merlin
+- EDASM
 
 </string>
 	<key>name</key>
