@@ -9,10 +9,16 @@
 	<key>patterns</key>
 	<array>
 		<dict>
-			<key>match</key>
-			<string>\b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRA|BRK|BRL|BVC|BVS|CLC|CLD|CLI|CLV|CMP|COP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JML|JMP|JSL|JSR|LDA|LDX|LDY|LSR|MVN|MVP|NOP|ORA|PEA|PEI|PER|PHA|PHB|PHD|PHK|PHP|PHX|PHY|PLA|PLB|PLD|PLP|PLX|PLY|REP|ROL|ROR|RTI|RTL|RTS|SBC|SEC|SED|SEI|SEP|STA|STP|STX|STY|STZ|TAX|TAY|TCD|TCS|TDC|TRB|TSB|TSC|TSX|TXA|TXS|TXY|TYA|TYX|WAI|WDM|XBA|XCE)\b</string>
-			<key>name</key>
-			<string>keyword.mnemonic.65816</string>
+			<key>include</key>
+			<string>#M6502</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#M65C02</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#M65816</string>
 		</dict>
 	</array>
 	<key>repository</key>
@@ -30,6 +36,13 @@
 			<string>\b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b</string>
 			<key>name</key>
 			<string>keyword.mnemonic.65816</string>
+		</dict>
+		<key>M65816L</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65816.long</string>
 		</dict>
 		<key>M65C02</key>
 		<dict>
@@ -55,16 +68,9 @@
 		<key>hex_number</key>
 		<dict>
 			<key>match</key>
-			<string>\$[A-Za-z0-9]+</string>
+			<string>\$[A-Fa-f0-9]+</string>
 			<key>name</key>
 			<string>constant.numeric.hex</string>
-		</dict>
-		<key>long_mnemonics</key>
-		<dict>
-			<key>match</key>
-			<string>\b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b</string>
-			<key>name</key>
-			<string>keyword.mnemonic.65816.long</string>
 		</dict>
 		<key>octal_number</key>
 		<dict>

@@ -4,33 +4,35 @@
 <dict>
 	<key>fileTypes</key>
 	<array/>
+	<key>isDisabled</key>
+	<false/>
 	<key>name</key>
 	<string>EDASM</string>
 	<key>patterns</key>
 	<array>
 		<dict>
 			<key>include</key>
-			<string>source.asm.65816#M6502</string>
+			<string>#M6502</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>source.asm.65816#M65C02</string>
+			<string>#M65C02</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>source.asm.65816#hex_number</string>
+			<string>#hex_number</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>source.asm.65816#binary_number</string>
+			<string>#binary_number</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>source.asm.65816#decimal_number</string>
+			<string>#decimal_number</string>
 		</dict>
 		<dict>
 			<key>include</key>
-			<string>source.asm.65816#octal_number</string>
+			<string>#octal_number</string>
 		</dict>
 		<dict>
 			<key>match</key>
@@ -106,6 +108,65 @@
 			<string>keyword.operator</string>
 		</dict>
 	</array>
+	<key>repository</key>
+	<dict>
+		<key>M6502</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.6502</string>
+		</dict>
+		<key>M65816</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65816</string>
+		</dict>
+		<key>M65816L</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65816.long</string>
+		</dict>
+		<key>M65C02</key>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b</string>
+			<key>name</key>
+			<string>keyword.mnemonic.65c02</string>
+		</dict>
+		<key>binary_number</key>
+		<dict>
+			<key>match</key>
+			<string>%[01]+</string>
+			<key>name</key>
+			<string>constant.numeric.binary</string>
+		</dict>
+		<key>decimal_number</key>
+		<dict>
+			<key>match</key>
+			<string>\b([0-9]+)\b</string>
+			<key>name</key>
+			<string>constant.numeric.decimal</string>
+		</dict>
+		<key>hex_number</key>
+		<dict>
+			<key>match</key>
+			<string>\$[A-Fa-f0-9]+</string>
+			<key>name</key>
+			<string>constant.numeric.hex</string>
+		</dict>
+		<key>octal_number</key>
+		<dict>
+			<key>match</key>
+			<string>@([0-7]+)\b</string>
+			<key>name</key>
+			<string>constant.numeric.octal</string>
+		</dict>
+	</dict>
 	<key>scopeName</key>
 	<string>source.asm.6502.edasm</string>
 	<key>uuid</key>
