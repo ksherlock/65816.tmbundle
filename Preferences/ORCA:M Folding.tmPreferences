@@ -9,7 +9,7 @@
 	<key>settings</key>
 	<dict>
 		<key>foldingStartMarker</key>
-		<string>\b(?i:START|DATA|PRIVDATA)\b</string>
+		<string>\b(?i:START|PRIVATE|DATA|PRIVDATA)\b</string>
 		<key>foldingStopMarker</key>
 		<string>\b(?i:END)\b</string>
 	</dict>

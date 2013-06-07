@@ -62,7 +62,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^([_~A-Za-z][_~A-Za-z0-9]*)\s+((?i)START|DATA|PRIVDATA)\b</string>
+			<string>^([_~A-Za-z][_~A-Za-z0-9]*)\s+((?i)START|PRIVATE|DATA|PRIVDATA)\b</string>
 			<key>name</key>
 			<string>meta.function</string>
 		</dict>
