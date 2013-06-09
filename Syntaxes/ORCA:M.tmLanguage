@@ -195,7 +195,7 @@
 			<key>comment</key>
 			<string>dc nH'...'</string>
 			<key>end</key>
-			<string>(')$</string>
+			<string>'</string>
 			<key>name</key>
 			<string>meta.dc.h</string>
 			<key>patterns</key>
