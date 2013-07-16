@@ -1,0 +1,6 @@
+[
+	{
+		"keys": ["super+ctrl+m"],
+		"command": "merlin_to_text"
+	}
+]
