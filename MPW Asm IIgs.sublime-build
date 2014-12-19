@@ -1,0 +1,8 @@
+{
+	"working_dir": "$project_path",
+	"selector": "source.asm.65816.mpw",
+	"cmd": ["mpw", "asmiigs", "$file"],
+	"file_regex": "^ *File \"(.*?)\"; line ([0-9]+)$"
+
+}
+
