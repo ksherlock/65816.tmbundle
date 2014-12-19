@@ -6,8 +6,6 @@
 	<array>
 		<string>S</string>
 	</array>
-	<key>isDisabled</key>
-	<false/>
 	<key>name</key>
 	<string>Merlin</string>
 	<key>patterns</key>
@@ -63,10 +61,8 @@
 			<string>string.quoted.double</string>
 		</dict>
 		<dict>
-			<key>begin</key>
-			<string>'</string>
-			<key>end</key>
-			<string>'</string>
+			<key>match</key>
+			<string>'.*'</string>
 			<key>name</key>
 			<string>string.quoted.single</string>
 		</dict>
@@ -361,7 +357,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(?i:MAC)\b|&lt;&lt;&lt;</string>
+			<string>\b(?i:MAC|EOM)\b|&lt;&lt;&lt;</string>
 			<key>name</key>
 			<string>keyword.directive.macro</string>
 		</dict>
