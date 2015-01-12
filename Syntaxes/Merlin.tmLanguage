@@ -74,13 +74,13 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>;.*</string>
+			<string>(?&lt;=[ \t])(;.*)</string>
 			<key>name</key>
 			<string>comment.line</string>
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>^][0-~]*\b</string>
+			<string>][0-~]*\b</string>
 			<key>name</key>
 			<string>entity.name.label.variable</string>
 		</dict>
