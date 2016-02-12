@@ -1,4 +1,6 @@
 {
   "tab_size": 8,
-  "translate_tabs_to_spaces": false
+  "translate_tabs_to_spaces": false,
+  "default_encoding": "Western (Mac Roman)",
+  "fallback_encoding": "Western (Mac Roman)"
 }
