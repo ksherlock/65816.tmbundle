@@ -11,7 +11,7 @@
 		<key>foldingStartMarker</key>
 		<string>\b(?i:DUM|DO|IF|MAC|LUP)\b</string>
 		<key>foldingStopMarker</key>
-		<string>\b(?i:DEND|FIN)\b|&lt;&lt;&lt;|--\^</string>
+		<string>\b(?i:DEND|FIN|EOM)\b|&lt;&lt;&lt;|--\^</string>
 	</dict>
 	<key>uuid</key>
 	<string>9DDC3C1F-C4A9-4888-BFBA-1CFF7448AC47</string>
