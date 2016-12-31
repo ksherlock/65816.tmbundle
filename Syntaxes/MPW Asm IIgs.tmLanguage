@@ -6,8 +6,6 @@
 	<array>
 		<string>aii</string>
 	</array>
-	<key>isDisabled</key>
-	<false/>
 	<key>name</key>
 	<string>MPW Asm IIgs</string>
 	<key>patterns</key>
@@ -46,7 +44,7 @@
 			<key>comment</key>
 			<string>Rockwell/m740</string>
 			<key>match</key>
-			<string>\b(?:BBC|BBR|BBS|CLB|RMB|SEB|SMB)[0-9]\b</string>
+			<string>\b(?:BBC|BBR|BBS|CLB|RMB|SEB|SMB)[0-7]\b</string>
 			<key>name</key>
 			<string>keyword.mnemonic.other</string>
 		</dict>
