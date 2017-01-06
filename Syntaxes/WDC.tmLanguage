@@ -232,9 +232,39 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(?i:APPEND|INCLUDE|INSERT|END|EXIT|MODULE|ENDMOD|SECTION|PAGE0|CODE|KDATA|DATA|UDATA|ENDS|ORG|ORIGIN|EQU|EQUAL|GEQU|DEFL|SET|VAR|EXTERN|EXTERNAL|XREF|EXTERNS|GLOBAL|PUBLIC|XDEF|GLOBALS|MESSAGE|MESSG|EFUNC|INCDEBUG|CASE|CHIP|CHKIMMED|COMMENT|DBREG|DPAGE|LONGA|LONGI|RADIX|SPACES|LLCHAR|BIT7|MASK|SQUOTE|TWOCHAR|ASCII|ASC|FCC|DATE|DA|BYTE|DB|DEFB|FCB|STRING|DC|DEFW|DW|FDB|WORD|DBYTE|DL|LONG|LONGW|LWORD|BLKB|BLKW|BLKL|DEFS|DS|RMB|DSA|DSB|DSL|DSW|APWDC|FLOAT|DOUBLE)\b</string>
+			<string>\b(?i:APPEND|INCLUDE|INSERT|END|EXIT|MODULE|ENDMOD|SECTION|PAGE0|CODE|KDATA|DATA|UDATA|ENDS|ORG|ORIGIN|EQU|EQUAL|GEQU|DEFL|SET|VAR|EXTERN|EXTERNAL|XREF|EXTERNS|GLOBAL|PUBLIC|XDEF|GLOBALS|MESSAGE|MESSG|EFUNC|INCDEBUG)\b</string>
 			<key>name</key>
-			<string>keyword.directive</string>
+			<string>keyword.directive.file</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:CASE|CHIP|CHKIMMED|COMMENT|DBREG|DPAGE|LONGA|LONGI|RADIX|SPACES)\b</string>
+			<key>name</key>
+			<string>keyword.directive.parsing</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:BIT7|MASK|SQUOTE|TWOCHAR|ASCII|ASC|FCC|DATE|DA|BYTE|DB|DEFB|FCB|STRING|DC|DEFW|DW|FDB|WORD|DBYTE|DL|LONG|LONGW|LWORD|BLKB|BLKW|BLKL|DEFS|DS|RMB|DSA|DSB|DSL|DSW|APWDC|FLOAT|DOUBLE)\b</string>
+			<key>name</key>
+			<string>keyword.directive.data</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:MACRO|END|MACEND|ARGCHK|MACFIRST|MACDELIM|MACEXIT|IFMA|IFNMA|REPT|ENDR)\b</string>
+			<key>name</key>
+			<string>keyword.directive.macro</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:ENDC|ENDIF|COND|IF|IFN?(FALSE|TRUE|Z|ABS|REL|DEF|DIFF|SAME|EXT|PAGE0)|ELSE|IF(LONG|SHORT)[AI]|IFMATCH)\b</string>
+			<key>name</key>
+			<string>keyword.directive.conditional</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:PL|PW|TOP|HEADING|NAM|TITLE|TTL|STTL|SUBTITLE|SUBTTL|EJECT|PAG|PAGE|LIST|(N|NO|INC|ASC|COND|MAC|M|MN)LIST|PASS1)\b</string>
+			<key>name</key>
+			<string>keyword.directive.listing</string>
 		</dict>
 		<dict>
 			<key>match</key>
