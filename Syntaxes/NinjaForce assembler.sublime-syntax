@@ -1,0 +1,150 @@
+%YAML 1.2
+---
+name: NinjaForce Assembler
+file_extensions: [s]
+scope: source.asm.65816.ninjaforce
+
+variables:
+  ws: '[ \t]+'
+  ident: '[A-Za-z_][A-Za-z0-9_]*'
+
+contexts:
+  main:
+    - include: label
+
+
+  label:
+
+    - match: '{{ws}}'
+      push: opcode
+
+    - match: '^({{ident}}){{ws}}((?i)MAC)\b'
+      captures:
+        1: entity.name.macro
+        2: keyword.directive
+      push: operand  
+
+    - match: '^]?{{ident}}'
+      scope: entity.name.label
+
+    - match: ^[*]|;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+    - include: comment
+    - include: mnemonics-6502
+    - include: mnemonics-65c02
+    - include: mnemonics-65816
+    - include: mnemonics-65816-long
+    - include: mnemonics-65816-alt
+
+    - match: \b(?i:IMP|INS)\b
+      scope: keyword.control.import
+      set: operand-string
+    - match: \b(?i:ORG|EQU|COD|TYP|LNK|SHT|LNG|M08|M16|X08|X16|LST|LOP)\b
+      scope: keyword.directive
+    - match: =
+      scope: keyword.directive
+    - match: \b(?i:ASC|STR)\b
+      scope: keyword.directive.data
+      set: operand-string
+    - match: \b(?i:DLW|DW|DFB)\b
+      scope: keyword.directive.data
+
+    - match: \b(?i:HEX)\b
+      scope: keyword.directive.data
+      set: operand-hex
+
+    - match: \b(?i:MSB)\b
+      scope: keyword.directive
+      set: operand-on-off
+
+    - match: \^\^\^|<<<
+      scope: keyword.directive
+
+
+
+  operand:
+    - include: comment
+    - include: numbers
+    - include: strings
+    - include: macro-parm 
+
+  operand-string:
+    - include: comment
+    - include: strings
+
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand-hex:
+    - include: comment
+    - match: '[0-9A-Fa-f]{1,2}'
+      scope: constant.numeric.hex
+    - match: '[^ \t,]'
+      scope: invalid.illegal.operand
+
+  operand-on-off:
+    - include: comment
+    - match: \b(?i:ON|OFF)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+
+  comment:
+    - match: ;[^\n]*
+      scope: comment.line.partial
+    - match: \n
+      pop: true
+
+  mnemonics-6502:
+    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
+      scope: keyword.mnemonic.6502
+
+  mnemonics-65c02:
+    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
+      scope: keyword.mnemonic.65c02
+
+  mnemonics-65816:
+    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
+      scope: keyword.mnemonic.65816
+
+  mnemonics-65816-long:
+    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
+      scope: keyword.mnemonic.65816.long
+
+  mnemonics-65816-alt:
+    - match: \b(?i:BLT|BGE)\b
+      scope: keyword.mnemonic.65816.alt
+
+
+  numbers:
+    - match: \d+
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+
+      scope: constant.numeric.hex
+    - match: \%[01]+
+      scope: constant.numeric.binary
+
+  macro-parm:
+    - match: '&\d'
+      scope: variable.other
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+        - match: .
+          scope: string.quoted.double

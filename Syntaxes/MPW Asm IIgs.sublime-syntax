@@ -1,0 +1,277 @@
+%YAML 1.2
+---
+name: MPW Asm IIgs
+file_extensions: [aii]
+scope: source.asm.65816.mpw
+
+variables:
+  ws: '[ \t]+'
+  ident: '[A-Za-z@_~][A-Za-z0-9@_~%$#]*'
+
+contexts:
+  main:
+    - include: label
+
+  label:
+    - match: '{{ws}}'
+      push: opcode
+
+    - match: '^({{ident}}){{ws}}((?i)PROC|PROCNAME|FUNC|INIT|STACKDP)\b'
+      captures:
+        1: entity.name.function
+        2: keyword.directive
+      push: operand
+
+    - match: '^({{ident}}){{ws}}((?i)RECORD)\b'
+      captures:
+        1: entity.name.record
+        2: keyword.directive
+      push: operand
+
+
+
+    - match: '^{{ident}}'
+      scope: entity.name.label
+
+    - match: '^&{{ident}}'
+      scope: variable.other
+
+
+    - match: ^[*]|;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+    - include: comment
+    - include: mnemonics-6502
+    - include: mnemonics-65c02
+    - include: mnemonics-65816
+    - include: mnemonics-65816-long
+    - include: mnemonics-65816-alt
+
+
+    - match: \b((?i)DC|DCB|DS)([.](.))?
+      scope: meta.dc.directive
+      captures:
+        1: keyword.directive.data
+        2: storage.type
+
+    - match: \b((?i)CODECHK|DATACHK|LONGA|LONGI|MSB)\b
+      scope: keyword.directive
+      set: operand_on_off
+
+    - match: \b((?i)STRING)\b
+      scope: keyword.directive.data
+      set: operand_string
+
+    - match: \b(?i:ENTRY)\b
+      scope: keyword.directive
+      set: operand_entry
+
+    - match: \b(?i:MACHINE)\b
+      scope: keyword.directive
+      set: operand_machine
+
+    - match: \b(?i:BLANKS)\b
+      scope: keyword.directive
+      set: operand_blanks
+
+    - match: \b(?i:CASE)\b
+      scope: keyword.directive
+      set: operand_case
+
+    - match: \b(?i:PRINT)\b
+      scope: keyword.directive
+      set: operand_print
+
+    - match: \b(?i:IMPORT|INCLUDE)\b
+      scope: keyword.control.import
+
+    - match: \b(?i:ALIGN|BLANKS|CASE|CODE|CODECHK|DATACHK|DIRECT|DUMP|EJECT|END|ENDF|ENDFUNC|ENDI|ENDP|ENDPROC|END_PROC|ENDR|ENDSTACK|ENDS|ENDWITH|ENTRY|EQU|EXPORT|FUNC|IMPORT|INCLUDE|INIT|LOAD|LONGA|LONGI|MACHINE|MSB|ORG|PAGESIZE|PRINT|PROC|RECORD|SEG|SEGATTR|SET|SPACE|STACKDP|STRING|TITLE|WITH)\b
+      scope: keyword.directive
+
+    - match: \b(?i:IF|ELSEIF)\b
+      scope: keyword.control.conditional
+      set: operand_if
+
+    - match: \b(?i:CYCLE|LEAVE|ELSE|ENDIF|ENDWHILE|THEN|WHILE)\b
+      scope: keyword.control.conditional
+
+    - match: \b(?i:ACTR|AERROR|ANOP|CYCLE|ELSE|ELSEIF|ENDIF|ENDM|ENDMACRO|ENDWHILE|EXITM|GOTO|IF|LEAVE|MACRO|MEND|MEXIT|THEN|WHILE|WRITE|WRITELN|SET|SETA|SETC)\b
+      scope: support.function.macro
+
+    - include: macro-functions
+
+
+
+    # - match: '{{ident}}' # macro?
+    #   scope: keyword.macro
+
+  macro-parm:
+    - match: '&{{ident}}\b'
+      scope: variable.other
+
+  operand_on_off:
+    - include: comment
+    - include: macro-parm
+    - match: \b(?i:ON|OFF)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand_string:
+    - include: comment
+    - include: macro-parm
+    - match: \b(?i:ASIS|PASCAL|C|GS/OS)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand_machine:
+    - include: comment
+    - include: macro-parm
+    - match: \b(?i:M65816|M6502|M65C02|M65CX02|M740)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand_case:
+    - include: comment
+    - include: macro-parm
+    - match: \b(?i:ON|OFF|YES|NO|Y|N|OBJECT|OBJ)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand_blanks:
+    - include: comment
+    - include: macro-parm
+    - match: \b(?i:ON|OFF|YES|NO|Y|N)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand_print:
+    - include: comment
+    - include: macro-parm
+    - match: \b(?i:ON|OFF|PUSH|POP)\b
+      scope: constant.language
+    - match: \b(?i:NO)?(?i:GEN|PAGE|WARN|MCALL|OBJ|DATA|MDIR|HDR|LITS|STAT|SYM)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand_entry:
+    - include: comment
+    - match: '\b{{ident}}\b'
+      scope: entity.name.function
+
+
+  operand_if:
+    - match: \b(?i:THEN)\b
+      scope: keyword.control.conditional
+    - include: operand
+
+
+  operand:
+    - include: comment
+    - include: macro-parm
+
+    - include: numbers
+    - include: strings
+    - include: macro-functions
+
+    # - match: \b(?i:ON|OFF|PUSH|POP)\b
+    #   scope: constant.language
+    # - match: \b(?i:NO)?(?i:GEN|PAGE|WARN|MCALL|OBJ|DATA|MDIR|HDR|LITS|STAT|SYM)\b
+    #   scope: constant.language
+
+    - match: \b(?i:NOT|DIV|MOD|AND|OR|XOR|EOR)\b
+      scope: keyword.operator
+
+
+  macro-functions:
+    - match: \&(?i:ABS|CHR|CONCAT|DEFAULT|DELSYMTBL|ENTERSYM|EVAL|FINDSYM|GETENV|INTTOSTR|I2S|ISINT|LEN|LEX|LIST|LOWCASE|LC|MAX|MIN|NBR|NEWSYMTBL|ORD|POS|SCANEQ|SCANNE|STRTOINT|S2I|SETTING|SUBSTR|SYSDATE|SYSINDEX|SYSLIST|SYSLST|SYSLOCAL|SYSGLOBAL|SYSMOD|SYSSEG|SYSTIME|SYSTOKEN|SYSTOKSTR|SYSVALUE|SYSFLAGS|TRIM|TYPE|UPCASE|UC)\b
+      scope: support.function.macro
+
+
+  numbers:
+    - match: \d+
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+
+      scope: constant.numeric.hex
+    - match: \%[01]+
+      scope: constant.numeric.binary
+    - match: \@[0-7]+
+      scope: constant.numeric.octal
+
+  strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+        - match: .
+          scope: string.quoted.single
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+        - match: .
+          scope: string.quoted.double
+
+
+  comment:
+    - match: ;[^\n]*
+      scope: comment.line.partial
+    - match: \n
+      pop: true
+
+
+  eol:
+    - match: \n
+      pop: true
+
+
+  mnemonics-6502:
+    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
+      scope: keyword.mnemonic.6502
+
+  mnemonics-65c02:
+    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
+      scope: keyword.mnemonic.65c02
+
+  mnemonics-65816:
+    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
+      scope: keyword.mnemonic.65816
+
+  mnemonics-65816-long:
+    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
+      scope: keyword.mnemonic.65816.long
+
+  mnemonics-65816-alt:
+    - match: \b(?i:BLT|BGE|CPA|DEA|INA|SWA|TAS|TSA)\b
+      scope: keyword.mnemonic.65816.alt
+
+  mnemonics-65c02-rockwell:
+    - match: \b((?i:BBC|BBR|BBS|CLB|RMB|SEB|SMB)[0-7])\b
+      scope: keyword.mnemonic.rockwell
+
+  mnemonics-65c02-m740:
+    - match: \b(?i:CLT|COM|LDM|RRF|SETT|TST)\b
+      scope: keyword.mnemonic.m740
+
+
