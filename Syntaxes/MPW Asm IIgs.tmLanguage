@@ -44,7 +44,7 @@
 			<key>comment</key>
 			<string>Rockwell/m740</string>
 			<key>match</key>
-			<string>\b(?:BBC|BBR|BBS|CLB|RMB|SEB|SMB)[0-7]\b</string>
+			<string>\b(?i:BBC|BBR|BBS|CLB|RMB|SEB|SMB)[0-7]\b</string>
 			<key>name</key>
 			<string>keyword.mnemonic.other</string>
 		</dict>
@@ -281,7 +281,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>\b((?i)BLANKS)\s+((?i)ON|OFF|YES|NO|Y|N|OBJECT|OBJ)\b</string>
+			<string>\b((?i)CASE)\s+((?i)ON|OFF|YES|NO|Y|N|OBJECT|OBJ)\b</string>
 			<key>name</key>
 			<string>meta.case.directive</string>
 		</dict>
