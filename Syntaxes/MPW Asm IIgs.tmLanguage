@@ -52,7 +52,7 @@
 			<key>comment</key>
 			<string>Rockwell/m740</string>
 			<key>match</key>
-			<string>\b(?i:CLT|COM|LDM|RRF|SETT|TST)\b</string>
+			<string>\b(?i:CLT|COM|LDM|RRF|SET|TST)\b</string>
 			<key>name</key>
 			<string>keyword.mnemonic.other</string>
 		</dict>

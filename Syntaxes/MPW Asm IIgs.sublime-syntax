@@ -53,6 +53,10 @@ contexts:
     - include: mnemonics-65816-long
     - include: mnemonics-65816-alt
 
+    # toolbox macros
+    - match: \b_[A-Za-z0-9]+\b
+      scope: support.function.macro.toolbox
+
 
     - match: \b((?i)DC|DCB|DS)([.](.))?
       scope: meta.dc.directive
@@ -271,7 +275,7 @@ contexts:
       scope: keyword.mnemonic.rockwell
 
   mnemonics-65c02-m740:
-    - match: \b(?i:CLT|COM|LDM|RRF|SETT|TST)\b
+    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
       scope: keyword.mnemonic.m740
 
 

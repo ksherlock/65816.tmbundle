@@ -62,6 +62,12 @@ contexts:
     - include: mnemonics-65816-long
     - include: mnemonics-65816-alt
 
+    # toolbox macros
+    - match: \b_[A-Za-z0-9]+\b
+      scope: support.function.macro.toolbox
+    - match: ~[A-Za-z0-9]+\b
+      scope: support.function.macro.toolbox
+
 
     - match: \b(?i:DFB|DB|DDB|DA|DW|ADR|ADRL|DS)\b
       scope: keyword.directive.data
@@ -132,7 +138,7 @@ contexts:
   operand:
     - include: comment
     - include: numbers
-    # - include: strings
+    - include: strings
     - include: macro-parm 
 
   operand-hex:

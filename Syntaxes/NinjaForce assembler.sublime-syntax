@@ -43,6 +43,10 @@ contexts:
     - include: mnemonics-65816-long
     - include: mnemonics-65816-alt
 
+    # toolbox macros
+    - match: \b_[A-Za-z0-9]+\b
+      scope: support.function.macro.toolbox
+
     - match: \b(?i:IMP|INS)\b
       scope: keyword.control.import
       set: operand-string
