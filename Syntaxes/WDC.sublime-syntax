@@ -1,0 +1,250 @@
+%YAML 1.2
+---
+name: WDC Assembler
+scope: source.asm.65816.wdc
+
+variables:
+  ws: '[ \t]+'
+  ident: '[A-Za-z_~][A-Za-z0-9_~]*'
+
+
+
+contexts:
+  prototype:
+    - include: comment
+  main:
+    - include: label
+
+  label:
+    - match: '{{ws}}'
+      push: opcode
+
+    - match: '^({{ident}}){{ws}}((?i)SECTION)\b'
+      captures:
+        1: entity.name.function
+        2: keyword.directive
+      push: operand
+
+    - match: '^({{ident}}){{ws}}((?i)MACRO)\b'
+      captures:
+        1: entity.name.function
+        2: keyword.directive
+      push: operand-macro
+
+
+
+    - match: '^{{ident}}'
+      scope: entity.name.label
+
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+
+    - include: mnemonics-6502
+    - include: mnemonics-65c02
+    - include: mnemonics-65c02s
+    - include: mnemonics-65816
+
+    - match: \b(?i:EXTERNS|GLOBALS|INCDEBUG|CASE|CHKIMMED|LONGA|LONGI|SPACES|BIT7|SQUOTES|TWOCHAR|ARGCHK|MACFIRST|INCLIST|CONDLIST|MACLIST|PASS1)\b
+      scope: keyword.directive
+      set: operand-on-off
+
+    - match: \b(?i:PL|PW|TOP|HEADING|NAM|TITLE|TTL|STTL|SUBTITLE|SUBTTL|EJECT|PAG|PAGE|LIST|(N|NO|INC|ASC|COND|MAC|M|MN)LIST|PASS1)\b
+      scope: keyword.directive.listing
+
+    - match: \b(?i:MODULE)\b
+      scope: keyword.directive
+      set: operand-module
+
+    - match: \b(?i:CHIP)\b
+      scope: keyword.directive
+      set: operand-chip
+
+    - match: \b(?i:MESSAGE|EXIT|HEADING|NAM|TITLE|TTL|STTL|SUBTITLE|SUBTTL)\b
+      scope: keyword.directive
+      set: operand-title
+
+    - match: \b(?i:APPEND|INCLUDE|INSERT)\b
+      scope: keyword.control.import
+      set: operand-import
+
+    - match: \b(?i:ASCII|ASC)\b
+      scope: keyword.directive
+      set: operand-ascii
+
+    - match: \b(?i:FCC)\b
+      scope: keyword.directive
+      set: operand-fcc
+
+    - match: \b(?i:COMMENT)\b
+      scope: keyword.directive
+      set: operand-comment
+
+    - match: \b(?i:APPEND|INCLUDE|INSERT|END|EXIT|MODULE|ENDMOD|SECTION|PAGE0|CODE|KDATA|DATA|UDATA|ENDS|ORG|ORIGIN|EQU|EQUAL|GEQU|DEFL|SET|VAR|EXTERN|EXTERNAL|XREF|EXTERNS|GLOBAL|PUBLIC|XDEF|GLOBALS|MESSAGE|MESSG|EFUNC|INCDEBUG)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:CASE|CHIP|CHKIMMED|COMMENT|DBREG|DPAGE|LONGA|LONGI|RADIX|SPACES)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:BIT7|MASK|SQUOTE|TWOCHAR|ASCII|ASC|FCC|DATE|DA|BYTE|DB|DEFB|FCB|STRING|DC|DEFW|DW|FDB|WORD|DBYTE|DL|LONG|LONGW|LWORD|BLKB|BLKW|BLKL|DEFS|DS|RMB|DSA|DSB|DSL|DSW|APWDC|FLOAT|DOUBLE)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:MACRO|END|MACEND|ARGCHK|MACFIRST|MACDELIM|MACEXIT|IFMA|IFNMA|REPT|ENDR)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:ENDC|ENDIF|COND|IF|IFN?(FALSE|TRUE|Z|ABS|REL|DEF|DIFF|SAME|EXT|PAGE0)|ELSE|IF(LONG|SHORT)[AI]|IFMATCH)\b
+      scope: keyword.control.conditional
+      set: operand
+
+
+
+  operand:
+    - include: numbers
+    - include: strings
+
+  operand-module:
+    - match: '\b{{ident}}\b'
+      scope: entity.name.function
+
+  operand-on-off:
+    - match: \b(?i:ON|OFF)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand-chip:
+    - match: \b(?i:65816|65C02|W65C02S)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand-title:
+    - meta_include_prototype: false
+    - match: \n
+      pop: true
+    - match: '[ \t]{,2}([^\n]*)'
+      captures:
+        1: string.unquoted
+
+  operand-import:
+    - match: ([^; \n\t]+)
+      scope: string.unquoted
+
+  operand-ascii:
+    - meta_include_prototype: false
+    - match: '{{ws}}'
+    - match: '([^\r\n|]+)'
+      scope: string.unquoted
+    - match: \|
+      set: comment
+    - match: \n
+      pop: true
+
+  operand-fcc:
+    - meta_include_prototype: false
+    - match: '{{ws}}'
+    - match: (\S)(.+?)(\1)
+      captures:
+        1: punctuation.definition.string.begin
+        2: string.quoted
+        3: punctuation.definition.string.end
+      set: comment
+    - match: .
+      scope: invalid.illegal
+
+  operand-macro:
+    - match: '\b{{ident}}\b'
+      scope: variable.parameter
+
+  # comment char
+  # ...
+  # char
+  operand-comment:
+    - meta_include_prototype: false
+
+    - match: (\S)
+      scope: punctuation.definition.comment.begin.asm
+      set: [comment, comment-block]
+
+    - match: \n
+      scope: invalid.illegal.newline.asm
+      pop: true
+
+  comment-block:
+    - meta_include_prototype: false
+    - meta_scope: comment.block
+    - match: \1
+      scope: punctuation.definition.comment.end.asm
+      pop: true # pops to comment.
+
+
+  numbers:
+    - match: \d+
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+
+      scope: constant.numeric.hex
+    - match: \%[01]+
+      scope: constant.numeric.binary
+
+  strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+
+  comment:
+    - match: ;[^\n]*
+      scope: comment.line.partial
+    - match: \n
+      pop: true
+
+  mnemonics-6502:
+    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
+      scope: keyword.mnemonic.6502
+
+  mnemonics-65c02:
+    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
+      scope: keyword.mnemonic.65c02
+
+  mnemonics-65c02s:
+    - match: \b(?i:BBR|BBS|RMB|SMB)[0-7]\b
+      scope: keyword.mnemonic.65c02s
+
+  mnemonics-65816:
+    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
+      scope: keyword.mnemonic.65816
+
+  mnemonics-65816-long:
+    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
+      scope: keyword.mnemonic.65816.long
+
+  mnemonics-65816-alt:
+    - match: \b(?i:BLT|BGE|CPA|DEA|INA|RET|SWA|TAD|TAS|TDA|TSA|XOR)\b
+      scope: keyword.mnemonic.65816.alt
+
+  mnemonics-65c02-m740:
+    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
+      scope: keyword.mnemonic.m740
