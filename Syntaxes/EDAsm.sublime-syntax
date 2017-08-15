@@ -1,0 +1,159 @@
+%YAML 1.2
+---
+name: EDAsm
+file_extensions: []
+scope: source.asm.65816.edasm
+
+variables:
+  ws: '[ \t]+'
+  ident: '[A-Za-z][A-Za-z0-9.]*'
+
+contexts:
+  prototype:
+    - include: comment
+    - include: registers
+  main:
+    - include: label
+
+  label:
+    - match: '{{ws}}'
+      push: opcode
+
+    - match: '^{{ident}}'
+      scope: entity.name.label
+
+    - match: ^[*]|;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+
+    - include: mnemonics-6502
+    - include: mnemonics-65c02
+
+    - match: \b((?i)ASC|STR|DCI|CHR)\b
+      scope: keyword.directive
+      set: operand-string
+
+    - match: \b((?i)CHN|INCLUDE)\b
+      scope: keyword.control.import
+      set: operand-path
+
+    - match: \b(?i:MSB)\b
+      scope: keyword.directive
+      set: operand-on-off
+
+    - match: \b(?i:LST)\b
+      scope: keyword.directive
+      set: operand-lst
+
+
+    - match: \b(?i:ASC|CHN|CHR|DATE|DB|DCI|DDB|DEF|DFB|DS|DSECT|DW|ENTRY|EQU|EXTRN|FAIL|FIN|IBUFSIZ|IDNUM|INCLUDE|INTERP|LST|MACLIB|MSB|OBJ|ORG|PAGE|REF|REL|REP|SBTL|SBUFSIZ|SKP|STR|SYS|TIME|ZDEF|ZREF|X6502|PAUSE|INBUFSIZ|SBUFSIZ)\b
+      scope: keyword.directive
+
+    - match: \b(?i:DO|ELSE|FIN|IFEQ|IFGE|IFGT|IFNE|IFLE|IFLT)\b
+      scope: keyword.control.conditional
+
+
+  operand:
+      # #'x doesn't need a closing quote.
+      - match: (#)(')([^'\n])('?)
+        captures:
+          2: string.quoted.single punctuation.definition.string.begin
+          3: string.quoted.single
+          4: string.quoted.single punctuation.definition.string.end
+        set: expect-comment
+      - include: strings
+      - include: numbers
+
+  operand-string:
+      - include: strings
+
+  operand-on-off:
+    - match: \b(?i:ON|OFF)\b
+      scope: constant.language
+    - match: \S
+      scope: invalid.illegal.operand
+
+  operand-lst:
+    - match: \b(?i:ON|OFF)\b
+      scope: constant.language
+    - match: \b(?i:NO)?(?i:CYC|GEN|WARN|UNASM|ASYM|VSYM|SIXUP|EXP)\b
+      scope: constant.language
+    - match: '[^, \t]'
+      scope: invalid.illegal.operand
+
+  operand-path:
+    - match: ([^; \n\t]+)
+      scope: string.unquoted
+
+  registers:
+    - match: \b(?i:A|X|Y)\b
+      scope: variable.language.register
+
+  mnemonics-6502:
+    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
+      scope: keyword.mnemonic.6502
+
+  mnemonics-65c02:
+    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
+      scope: keyword.mnemonic.65c02
+
+  mnemonics-6502-alt:
+    - match: \b(?i:BLT|BGE|DEA|INA|LSL)\b
+      scope: keyword.mnemonic.6502-alt
+
+  mnemonics-sweet16:
+    - match: \b(?i:SET|LD|LDD|ST|STD|POP|POPD|STP|ADD|SUB|CPR|INR|DCR|BR|BNC|BC|BP|BM|BZ|BNZ|BM1|BNM1|BK|RS|BS)\b
+      scope: keyword.mnemonic.65c02
+
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal
+
+
+  comment:
+    - match: ;[^\n]*
+      scope: comment.line.partial
+    - match: \n
+      pop: true
+
+  numbers:
+    - match: \d+
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+
+      scope: constant.numeric.hex
+    - match: \%[01]+
+      scope: constant.numeric.binary
+    - match: \@[0-7]+
+      scope: constant.numeric.octal
+
+  strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
