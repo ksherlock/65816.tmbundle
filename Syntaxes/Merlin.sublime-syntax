@@ -139,7 +139,7 @@ contexts:
     - include: comment
     - include: numbers
     - include: strings
-    - include: macro-parm 
+    #- include: macro-parm 
 
   operand-hex:
     - include: comment

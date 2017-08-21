@@ -109,7 +109,7 @@ contexts:
       scope: keyword.mnemonic.6502-alt
 
   mnemonics-sweet16:
-    - match: \b(?i:SET|LD|LDD|ST|STD|POP|POPD|STP|ADD|SUB|CPR|INR|DCR|BR|BNC|BC|BP|BM|BZ|BNZ|BM1|BNM1|BK|RS|BS)\b
+    - match: \b(?i:RTN|SET|LD|LDD|ST|STD|POP|POPD|STP|ADD|SUB|CPR|INR|DCR|BR|BNC|BC|BP|BM|BZ|BNZ|BM1|BNM1|BK|RS|BS)\b
       scope: keyword.mnemonic.65c02
 
   expect-comment:
