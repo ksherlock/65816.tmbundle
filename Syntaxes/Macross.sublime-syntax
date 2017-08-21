@@ -1,0 +1,183 @@
+%YAML 1.2
+---
+name: MACROSS Assembler
+file_extensions: []
+scope: source.asm.6502.macross
+
+
+variables:
+  ws: '[ \t]'
+  ident: '[A-Za-z_][A-Za-z_0-9]*'
+
+contexts:
+  main:
+
+
+
+    - match: '\b(?i:include)\b'
+      scope: keyword.control.import
+
+    - match: '\b(macro){{ws}}+({{ident}})\b'
+      captures:
+        1: keyword.control.import
+        2: entitity.name.macro
+      push:
+        - match: '{'
+          set: block
+        - match: '\b{{ident}}\b'
+          scope: variable.parameter
+
+    - match: '\b(function){{ws}}+({{ident}})\b'
+      captures:
+        1: keyword.control.import
+        2: entitity.name.function
+      push:
+        - match: '{'
+          set: block
+        - match: '\b{{ident}}\b'
+          scope: variable.parameter
+
+    - match: \bstruct(?=\s*{)
+      scope: keyword
+      set: [name_after_struct, block]
+
+    - include: block
+    - include: block-content
+
+
+
+
+  name_after_struct:
+    # - match: \n
+    #   scope: invalid.illegal
+    #   pop: true
+    - include: comments
+    - match: '{{ident}}'
+      scope: entitity.name.struct
+      pop: true
+    - match: '[^ \t]+'
+      scope: invalid.illegal
+      pop: true
+
+
+  while_after_mdo:
+    # - match: \n
+    #   scope: invalid.illegal
+    #   pop: true
+    - include: comments
+    - match: '\b(?i:while|until)\b'
+      scope: keyword.control.import
+      pop: true
+    - match: '[^ \t]+'
+      scope: invalid.illegal
+      pop: true
+
+
+  block:
+    - match: \{
+      scope: invalid.illegal
+      meta_content_scope: meta.block
+      push: block
+    - match: \}
+      pop: true
+
+    - include: block-content
+
+
+  block-content:
+    - include: comments
+    - include: string
+    - include: mnemonics-6502
+    - include: mnemonics-65c02
+    - include: numbers
+
+    - match: '({{ident}}):'
+      captures:
+        1: entitity.name.label
+
+    - match: '\b[AaXxYy]\b'
+      scope: constant.language.register
+
+    - match: '\b(?i:TRUE|FALSE|NULL|here)\b'
+      scope: constant.language
+
+
+      # data statement
+    - match: \b(?i:block|align|word|long|dbyte|byte|string|struct)\b
+      scope: storage.type
+
+      # macro statements
+      # c++ #if uses keyword.control.import
+    - match: \b(?i:mdefine|mif|melse|melseif|mwhile|freturn|mfor|mswitch|mcase|mdefault|define|variable|undefine|function|macro)\b
+      scope: keyword.control.import
+
+      # mdo { block } while | until
+    - match: \b(?i:mdo)
+      scope: keyword.control.import
+      set: [while_after_mdo, block]
+
+
+    - match: '\b(?i:assert|constrain|define|do|else|elseif|extern|freturn|function|if|include|macro|mcase|mdefault|mdefine|mdo|melse|melseif|mfor|mif|mswitch|muntil|mvariable|mwhile|org|rel|start|target|undefine|until|variable|while|word)\b'
+      scope: keyword
+
+    - match: '\b(?i:always|carry|equal|geq|greater|gt|leq|less|lt|minus|negative|neq|never|not_carry|not_equal|not_overflow|not_zero|overflow|plus|positive|sgeq|sgt|sleq|slt|sneq|zero)\b'
+      scope: keyword.condition
+
+
+    - match: '\b(?i:addressMode|apply|arrayLength|atascii|atasciiColor|debugModeOff|debugModeOn|emitModeOff|emitModeOn|isAbsoluteValue|isARegister|isBlock|isBuiltInFunction|isConditionCode|isDefined|isDirectMode|isExternal|isField|isFunction|isImmediateMode|isIndexedMode|isIndirectMode|isPostIndexedMode|isPreIndexedMode|isRelocatableValue|isString|isStruct|isSymbol|isXIndexedMode|isXRegister|isYIndexedMode|isYRegister|listingOff|listingOn|makeArray|nthChar|printf|strcat|strcmp|strcmplc|strlen|substr|symbolDefine|symbolLookup|symbolName|symbolUsage|valueType)\b'
+      scope: keyword
+
+
+
+
+  string:
+    - match: '"'
+      scope: string
+      push:
+        - meta_scope: string
+        - match: '\n'
+          pop: true
+          scope: invalid.illegal.newline
+        - match: '[^"\n]|\\.'
+        - match: '"'
+          pop: true
+
+  comments:
+    - match: ';'
+      push:
+        - meta_scope: comment.line
+        - match: '$'
+          pop: true
+
+    - match: '/\*'
+      push:
+        - meta_scope: comment.line
+        - match: '\*/'
+          pop: true
+
+  mnemonics-6502:
+    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
+      scope: keyword.mnemonic.6502
+
+  mnemonics-65c02:
+    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
+      scope: keyword.mnemonic.65c02
+
+  numbers:
+    - match: 0[0-7]+
+      scope: constant.numeric.octal
+    - match: 0[xX][0-9A-Fa-f]+
+      scope: constant.numeric.hexadecimal
+    - match: 0[qQ][0-3]+
+      scope: constant.numeric.quarters
+    - match: 0[bB][01]+
+      scope: constant.numeric
+
+    - match: \d+
+      scope: constant.numeric
+
+    - match: \'([^'\n]|\\.)\'
+      scope: constant.character
+    - match: \'.*$
+      scope: invalid.illegal.constant.character
+
