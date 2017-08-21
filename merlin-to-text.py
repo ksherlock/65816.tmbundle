@@ -1,6 +1,8 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 
 class MerlinToTextCommand(sublime_plugin.TextCommand):
+
 	def is_enabled(self):
 		scope = self.view.scope_name(0)
 		lang = scope.split(' ')[0]
@@ -16,7 +18,7 @@ class MerlinToTextCommand(sublime_plugin.TextCommand):
 		#
 
 		# create the translation table, stripping high-bytes.
-		table = map(lambda x: chr(x & 0x7f), xrange(256))
+		table = list(map(lambda x: chr(x & 0x7f), range(256)))
 		#
 		# high ' ' is actually a tab.
 		table[ord(' ') | 0x80] = '\t'
@@ -30,7 +32,7 @@ class MerlinToTextCommand(sublime_plugin.TextCommand):
 		#
 		#text = text.translate(table)
 
-		data = map(lambda x: table[ord(text[x])], xrange(len(text)))
+		data = map(lambda x: table[ord(text[x])], range(len(text)))
 
 		text = ''.join(data)
 
