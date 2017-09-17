@@ -9,10 +9,19 @@ variables:
   ident: '[:-~][0-~]*'
 
 contexts:
+  prototype:
+    - include: comment
+    - include: eol
   main:
-    - include: label
 
-  label:
+    - meta_include_prototype: false
+
+    - match: ^[;*]
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
     - match: '{{ws}}'
       push: opcode
 
@@ -46,20 +55,15 @@ contexts:
     - match: '^{{ident}}'
       scope: entity.name.label
 
-    - match: ^[*]|;
-      push:
-        - meta_scope: comment.line
-        - match: \n
-          pop: true
 
   opcode:
     - match: '{{ws}}'
       set: operand
     - include: comment
-    - include: mnemonics-6502
-    - include: mnemonics-65c02
-    - include: mnemonics-65816
-    - include: mnemonics-65816-long
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: scope:source.asm.65816#mnemonics-65816-long
     - include: mnemonics-65816-alt
 
     # toolbox macros
@@ -136,13 +140,11 @@ contexts:
 
 
   operand:
-    - include: comment
     - include: numbers
     - include: strings
     #- include: macro-parm 
 
   operand-hex:
-    - include: comment
     - match: '[0-9A-Fa-f]{2}'
       scope: constant.numeric.hex
     - match: '[^ \t,]'
@@ -150,12 +152,12 @@ contexts:
 
 
   operand-path:
-    - include: comment
-    - match: \S
+    - match: \S+
       scope: string.unquoted
+      set: expect-comment
+    - include: expect-comment
 
   operand-string:
-    - include: comment
     - include: strings
     - match: '[0-9A-Fa-f]{2}'
       scope: constant.numeric.hex
@@ -165,78 +167,66 @@ contexts:
 
 
   operand-off:
-    - include: comment
     - match: \b(?i:OFF)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
   operand-cas:
       # cas se / cas in
-    - include: comment
     - match: \b(?i:SE|IN)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
   operand-cyc:
       # cyc off | ave | flags
-    - include: comment
     - match: \b(?i:OFF|AVE|FLAGS)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
+
 
   operand-exp:
       # exp on | off | only
-    - include: comment
     - match: \b(?i:ON|OFF|ONLY)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
   operand-lst:
       # lst | lst ON | OFF | RTN | FILE,path...
-    - include: comment
     - match: \b(?i:ON|OFF|RTN)\b
       scope: constant.language
+      set: expect-comment
 
     - match: \b(?i:FILE){{ws}}*,
       scope: constant.language
       set: operand-path
 
-    - match: \S
-      scope: invalid.illegal.operand
+    - include: expect-comment
+
 
   operand-tr:
       # tr on | off | adr
-    - include: comment
     - match: \b(?i:ON|OFF|ADR)\b
       scope: constant.language
+      set: expect-comment
+    - include: expect-comment
+
+  expect-comment:
+    - include: comment
     - match: \S
-      scope: invalid.illegal.operand
+      scope: invalid.illegal.expect.comment
 
   comment:
-    - match: ;[^\n]*
-      scope: comment.line.partial
-    - match: \n
-      pop: true
+    - match: ;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
 
-  mnemonics-6502:
-    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
-      scope: keyword.mnemonic.6502
-
-  mnemonics-65c02:
-    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
-      scope: keyword.mnemonic.65c02
-
-  mnemonics-65816:
-    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
-      scope: keyword.mnemonic.65816
-
-  mnemonics-65816-long:
-    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
-      scope: keyword.mnemonic.65816.long
 
   mnemonics-65816-alt:
     - match: \b(?i:TAS|TSA|SWA|TAD|TDA|BLT|BGE)\b
@@ -254,23 +244,27 @@ contexts:
     - match: "'"
       scope: punctuation.definition.string.begin
       push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
         - match: "'"
           scope: punctuation.definition.string.end
           pop: true
         - match: \n
           scope: invalid.illegal.newline.asm
           pop: true
-        - match: .
-          scope: string.quoted.single
     - match: '"'
       scope: punctuation.definition.string.begin
       push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
         - match: '"'
           scope: punctuation.definition.string.end
           pop: true
         - match: \n
           scope: invalid.illegal.newline.asm
           pop: true
-        - match: .
-          scope: string.quoted.double
+
+  eol:
+    - match: '$'
+      pop: true
 
