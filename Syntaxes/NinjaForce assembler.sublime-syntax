@@ -9,11 +9,12 @@ variables:
   ident: '[A-Za-z_][A-Za-z0-9_]*'
 
 contexts:
+  prototype:
+    - include: comment
+    - include: eol
+
   main:
-    - include: label
-
-
-  label:
+    - meta_include_prototype: false
 
     - match: '{{ws}}'
       push: opcode
@@ -36,11 +37,10 @@ contexts:
   opcode:
     - match: '{{ws}}'
       set: operand
-    - include: comment
-    - include: mnemonics-6502
-    - include: mnemonics-65c02
-    - include: mnemonics-65816
-    - include: mnemonics-65816-long
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: scope:source.asm.65816#mnemonics-65816-long
     - include: mnemonics-65816-alt
 
     # toolbox macros
@@ -74,27 +74,23 @@ contexts:
 
 
   operand:
-    - include: comment
     - include: numbers
     - include: strings
     - include: macro-parm 
 
   operand-string:
-    - include: comment
     - include: strings
 
     - match: \S
       scope: invalid.illegal.operand
 
   operand-hex:
-    - include: comment
     - match: '[0-9A-Fa-f]{1,2}'
       scope: constant.numeric.hex
     - match: '[^ \t,]'
       scope: invalid.illegal.operand
 
   operand-on-off:
-    - include: comment
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
     - match: \S
@@ -107,21 +103,6 @@ contexts:
     - match: \n
       pop: true
 
-  mnemonics-6502:
-    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
-      scope: keyword.mnemonic.6502
-
-  mnemonics-65c02:
-    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
-      scope: keyword.mnemonic.65c02
-
-  mnemonics-65816:
-    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
-      scope: keyword.mnemonic.65816
-
-  mnemonics-65816-long:
-    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
-      scope: keyword.mnemonic.65816.long
 
   mnemonics-65816-alt:
     - match: \b(?i:BLT|BGE)\b
@@ -144,11 +125,16 @@ contexts:
     - match: '"'
       scope: punctuation.definition.string.begin
       push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
         - match: '"'
           scope: punctuation.definition.string.end
           pop: true
-        - match: \n
+        - match: '\n'
           scope: invalid.illegal.newline.asm
           pop: true
-        - match: .
-          scope: string.quoted.double
+
+
+  eol:
+    - match: '$'
+      pop: true

@@ -12,7 +12,10 @@ contexts:
   prototype:
     - include: comment
     - include: registers
+    - include: eol
+
   main:
+    - meta_include_prototype: false
 
     - match: '{{ws}}'
       push: opcode
@@ -141,3 +144,7 @@ contexts:
         - match: \n
           scope: invalid.illegal.newline.asm
           pop: true
+
+  eol:
+    - match: '$'
+      pop: true
