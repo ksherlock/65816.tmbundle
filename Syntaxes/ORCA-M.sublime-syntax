@@ -228,7 +228,7 @@ contexts:
       set:
         - meta_include_prototype: false
         - meta_scope: string.quoted.single
-        - match: "''" # escaping quote
+        - match: \''|[^'\n] # '' to escape
         - match: "'"
           scope: punctuation.definition.string.end
           set: operand-dc
@@ -282,6 +282,7 @@ contexts:
       push:
         - meta_include_prototype: false
         - meta_scope: string.quoted.single
+        - match: \''|[^'\n] # '' to escape
         - match: "'"
           scope: punctuation.definition.string.end
           pop: true
@@ -293,6 +294,7 @@ contexts:
       push:
         - meta_include_prototype: false
         - meta_scope: string.quoted.double
+        - match: \""|[^"\n] # '' to escape
         - match: '"'
           scope: punctuation.definition.string.end
           pop: true
@@ -306,6 +308,7 @@ contexts:
       push:
         - meta_include_prototype: false
         - meta_scope: string.quoted.single
+        - match: \''|[^'\n] # '' to escape
         - match: "'"
           scope: punctuation.definition.string.end
           pop: true
