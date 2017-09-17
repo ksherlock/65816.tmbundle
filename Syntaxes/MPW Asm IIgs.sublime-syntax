@@ -9,24 +9,33 @@ variables:
   ident: '[A-Za-z@_~][A-Za-z0-9@_~%$#]*'
 
 contexts:
+  prototype:
+    - include: eol
+    - include: comment
   main:
-    - include: label
+    - meta_include_prototype: false
 
-  label:
     - match: '{{ws}}'
       push: opcode
 
-    - match: '^({{ident}}){{ws}}((?i)PROC|PROCNAME|FUNC|INIT|STACKDP)\b'
+    - match: '^({{ident}}){{ws}}((?i)PROC|PROCNAME|FUNC|INIT)\b'
       captures:
         1: entity.name.function
         2: keyword.directive
-      push: operand
+      push: operand-proc
+
+
+    - match: '^({{ident}}){{ws}}((?i)STACKDP)\b'
+      captures:
+        1: entity.name.function
+        2: keyword.directive
+      push: operand-stackdp
 
     - match: '^({{ident}}){{ws}}((?i)RECORD)\b'
       captures:
         1: entity.name.record
         2: keyword.directive
-      push: operand
+      push: operand-record
 
 
 
@@ -37,7 +46,7 @@ contexts:
       scope: variable.other
 
 
-    - match: ^[*]|;
+    - match: ^[;*]
       push:
         - meta_scope: comment.line
         - match: \n
@@ -46,11 +55,10 @@ contexts:
   opcode:
     - match: '{{ws}}'
       set: operand
-    - include: comment
-    - include: mnemonics-6502
-    - include: mnemonics-65c02
-    - include: mnemonics-65816
-    - include: mnemonics-65816-long
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: scope:source.asm.65816#mnemonics-65816-long
     - include: mnemonics-65816-alt
 
     # toolbox macros
@@ -66,41 +74,68 @@ contexts:
 
     - match: \b((?i)CODECHK|DATACHK|LONGA|LONGI|MSB)\b
       scope: keyword.directive
-      set: operand_on_off
+      set: operand-on-off
 
     - match: \b((?i)STRING)\b
       scope: keyword.directive.data
-      set: operand_string
+      set: operand-string
 
     - match: \b(?i:ENTRY)\b
       scope: keyword.directive
-      set: operand_entry
+      set: operand-entry
+
+    - match: \b(?i:EXPORT|IMPORT)\b
+      scope: keyword.directive
+      set: operand-export
+
 
     - match: \b(?i:MACHINE)\b
       scope: keyword.directive
-      set: operand_machine
+      set: operand-machine
 
     - match: \b(?i:BLANKS)\b
       scope: keyword.directive
-      set: operand_blanks
+      set: operand-blanks
 
     - match: \b(?i:CASE)\b
       scope: keyword.directive
-      set: operand_case
+      set: operand-case
 
     - match: \b(?i:PRINT)\b
       scope: keyword.directive
-      set: operand_print
+      set: operand-print
 
-    - match: \b(?i:IMPORT|INCLUDE)\b
+    - match: \b(?i:PROC|PROCNAME|INIT|FUNC)\b
+      scope: keyword.directive
+      set: operand-proc
+
+    - match: \b(?i:RECORD)\b
+      scope: keyword.directive
+      set: operand-record
+
+    - match: \b(?i:STACKDP)\b
+      scope: keyword.directive
+      set: operand-stackdp
+
+    - match: \b(?i:SEGATTR)\b
+      scope: keyword.directive
+      set: operand-segattr
+
+    - match: \b(?i:SEG|TITLE)\b
+      scope: keyword.directive
+      set: operand-string-expr
+
+    - match: \b(?i:LOAD|DUMP|INCLUDE)\b
       scope: keyword.control.import
+      set: operand-string-expr
+
 
     - match: \b(?i:ALIGN|BLANKS|CASE|CODE|CODECHK|DATACHK|DIRECT|DUMP|EJECT|END|ENDF|ENDFUNC|ENDI|ENDP|ENDPROC|END_PROC|ENDR|ENDSTACK|ENDS|ENDWITH|ENTRY|EQU|EXPORT|FUNC|IMPORT|INCLUDE|INIT|LOAD|LONGA|LONGI|MACHINE|MSB|ORG|PAGESIZE|PRINT|PROC|RECORD|SEG|SEGATTR|SET|SPACE|STACKDP|STRING|TITLE|WITH)\b
       scope: keyword.directive
 
     - match: \b(?i:IF|ELSEIF)\b
       scope: keyword.control.conditional
-      set: operand_if
+      set: operand-if
 
     - match: \b(?i:CYCLE|LEAVE|ELSE|ENDIF|ENDWHILE|THEN|WHILE)\b
       scope: keyword.control.conditional
@@ -119,80 +154,107 @@ contexts:
     - match: '&{{ident}}\b'
       scope: variable.other
 
-  operand_on_off:
-    - include: comment
+  operand-on-off:
     - include: macro-parm
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
-  operand_string:
-    - include: comment
+  operand-string:
     - include: macro-parm
     - match: \b(?i:ASIS|PASCAL|C|GS/OS)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
-  operand_machine:
-    - include: comment
+  operand-proc:
+    - match: \b(?i:ENTRY|EXPORT|ALIGN|ORG|NOSKIP|SKIP|TEMPORG)\b
+      scope: constant.language
+    - include: operand
+
+  operand-record:
+    - include: operand-proc
+    - match: \b(?i:IMPORT|INCR|INCREMENT|DECR|DECREMENT)\b
+      scope: constant.language
+
+  operand-segattr:
+    - match: \b(?i:NORELOAD|RELOAD|NOBANK|BANK|NOSPECIAL|SPECIAL|STATIC|DYNAMIC)\b
+      scope: constant.language
+    - include: operand
+
+  operand-stackdp:
+    - match: \b(?i:ENTRY|EXPORT)\b
+      scope: constant.language
+      set: expect-comment
+    - include: expect-comment
+
+
+  operand-machine:
     - include: macro-parm
     - match: \b(?i:M65816|M6502|M65C02|M65CX02|M740)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
-  operand_case:
-    - include: comment
+  operand-case:
     - include: macro-parm
     - match: \b(?i:ON|OFF|YES|NO|Y|N|OBJECT|OBJ)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
-  operand_blanks:
-    - include: comment
+
+  operand-blanks:
     - include: macro-parm
     - match: \b(?i:ON|OFF|YES|NO|Y|N)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
-  operand_print:
-    - include: comment
+
+  operand-print:
     - include: macro-parm
     - match: \b(?i:ON|OFF|PUSH|POP)\b
       scope: constant.language
+      set: expect-comment
     - match: \b(?i:NO)?(?i:GEN|PAGE|WARN|MCALL|OBJ|DATA|MDIR|HDR|LITS|STAT|SYM)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
-  operand_entry:
-    - include: comment
+
+  operand-entry:
+    - match: \b(?i:CODE|DATA)\b
+      scope: constant.language
     - match: '\b{{ident}}\b'
       scope: entity.name.function
 
+  operand-export:
+    - match: \b(?i:CODE|DATA|EQU)\b
+      scope: constant.language
+    - match: '\b{{ident}}\b'
+      scope: entity.name.function
 
-  operand_if:
+  operand-if:
     - match: \b(?i:THEN)\b
       scope: keyword.control.conditional
     - include: operand
 
 
+
+  operand-string-expr:
+    - include: macro-parm
+    - include: strings
+    - include: expect-comment
+
   operand:
-    - include: comment
     - include: macro-parm
 
     - include: numbers
     - include: strings
     - include: macro-functions
 
-    # - match: \b(?i:ON|OFF|PUSH|POP)\b
-    #   scope: constant.language
-    # - match: \b(?i:NO)?(?i:GEN|PAGE|WARN|MCALL|OBJ|DATA|MDIR|HDR|LITS|STAT|SYM)\b
-    #   scope: constant.language
 
     - match: \b(?i:NOT|DIV|MOD|AND|OR|XOR|EOR)\b
       scope: keyword.operator
@@ -217,65 +279,52 @@ contexts:
     - match: "'"
       scope: punctuation.definition.string.begin
       push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
         - match: "'"
           scope: punctuation.definition.string.end
           pop: true
         - match: \n
           scope: invalid.illegal.newline.asm
           pop: true
-        - match: .
-          scope: string.quoted.single
     - match: '"'
       scope: punctuation.definition.string.begin
       push:
+        - meta_include_prototype: false
         - match: '"'
           scope: punctuation.definition.string.end
+          pop: true
+        - meta_scope: string.quoted.double
           pop: true
         - match: \n
           scope: invalid.illegal.newline.asm
           pop: true
-        - match: .
-          scope: string.quoted.double
 
+
+
+
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal.expect.comment
 
   comment:
-    - match: ;[^\n]*
-      scope: comment.line.partial
-    - match: \n
-      pop: true
+    - match: ;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
 
 
   eol:
-    - match: \n
+    - match: '$'
       pop: true
 
 
-  mnemonics-6502:
-    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
-      scope: keyword.mnemonic.6502
-
-  mnemonics-65c02:
-    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
-      scope: keyword.mnemonic.65c02
-
-  mnemonics-65816:
-    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
-      scope: keyword.mnemonic.65816
-
-  mnemonics-65816-long:
-    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
-      scope: keyword.mnemonic.65816.long
 
   mnemonics-65816-alt:
     - match: \b(?i:BLT|BGE|CPA|DEA|INA|SWA|TAS|TSA)\b
       scope: keyword.mnemonic.65816.alt
-
-  mnemonics-65c02-rockwell:
-    - match: \b((?i:BBC|BBR|BBS|CLB|RMB|SEB|SMB)[0-7])\b
-      scope: keyword.mnemonic.rockwell
-
-  mnemonics-65c02-m740:
-    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
-      scope: keyword.mnemonic.m740
 
 
