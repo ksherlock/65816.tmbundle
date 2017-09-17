@@ -9,40 +9,32 @@ variables:
   ident: '[_~A-Za-z][_~A-Za-z0-9]*'
 
 contexts:
-  prototype:
-    - include: comment
-  main:
-    - meta_include_prototype: false
-    - include: label
 
-  label:
+  main:
+
     - meta_include_prototype: false
     - match: '{{ws}}'
-      push: opcode
+      set: opcode
 
     - match: '^({{ident}}){{ws}}((?i)START|PRIVATE|DATA|PRIVDATA)\b'
       captures:
         1: entity.name.function
         2: keyword.directive
-      push: operand
+      set: operand-segname
 
 
     - match: '^{{ident}}'
       scope: entity.name.label
 
-    # - match: '^&{{ident}}'
-    #   scope: variable.other
-
-    - match: ^[*;!.]
-      push:
-        - meta_scope: comment.line
-        - match: \n
-          pop: true
+    - match: ^[*;!.].*$
+      scope: comment.line
 
   opcode:
-    - include: mnemonics-6502 
-    - include: mnemonics-65c02 
-    - include: mnemonics-65816
+    - include: comment
+
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65816
     - include: mnemonics-65816-alt
 
     - match: \b(?i:DC)\b
@@ -58,18 +50,94 @@ contexts:
       scope: keyword.directive
       set: operand-on-off
 
+    - match: \b(?i:DIRECT)\b
+      scope: keyword.directive
+      set: operand-or-off
 
+    - match: \b(?i:ALIGN|DS|EQU|GEQU|KIND|MERR|ORG|RENAME|SETCOM)\b
+      scope: keyword.directive
+      set: operand
+
+      # using label
+    - match: \b(?i:USING)\b
+      scope: keyword.directive
+      set: operand-label
+
+
+    - match: \b(?i:ANOP|EJECT|END|ENTRY|OBJEND)\b
+      scope: keyword.directive
+      set: expect-comment
+
+    - match: \b(?i:START|PRIVATE|DATA|PRIVDATA)\b
+      scope: keyword.directive
+      set: operand-segname
+
+    - match: \b(?i:TITLE)\b
+      scope: keyword.directive
+      set: operand-title
+
+
+    - match: \b(?i:MEM)\b
+      scope: invalid.deprecated
+      set: operand
 
 
     - match: '{{ws}}'
       set: operand
 
   operand:
+    - include: comment
     - include: numbers
     - include: strings
 
+  operand-label:
+    - match: '\b{{ident}}\b'
+      set: expect-comment
+    - include: need-operand
+
+  need-operand:
+    - match: '\n'
+      scope: invalid.illegal.operand
+      set: main
+    - match: '\S'
+      scope: invalid.illegal.operand
+
+  operand-or-off:
+    - include: comment
+
+    - match: \b(?i:OFF)\b
+      scope: constant.language
+      set: expect-comment
+    - include: operand    
+
+
+    # optional label.
+  operand-segname:
+    - match: '\b{{ident}}\b'
+      set: expect-comment
+    - include: expect-comment
+
+  operand-title:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      set:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          set: expect-comment   
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          set: main
+
+    - match: '([^ \t\n;]+)'
+      scope: string.unquoted
+      set: expect-comment
+
+
 
   operand-on-off:
+    - include: comment
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
       set: expect-comment
@@ -92,6 +160,8 @@ contexts:
     - include: operand-dc-format
 
   operand-dc-format:
+
+    - include: comment
 
     - match: ([bB])
       scope: storage.type
@@ -184,13 +254,8 @@ contexts:
           pop: true
 
 
-
-  eol-pop:
-    - match: ''
-      pop: true
-
   expect-comment:
-    # - include: comment
+    - include: comment
     - match: \S
       scope: invalid.illegal.expect.comment
 
@@ -198,8 +263,8 @@ contexts:
   comment:
     - match: ;[^\n]*
       scope: comment.line.partial
-    - match: \n
-      pop: true
+    - match: '$'
+      set: main
 
   numbers:
     - match: \d+
@@ -212,58 +277,43 @@ contexts:
       scope: constant.numeric.octal
 
   strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
 
-    #- match: (['])([^'\n]*)(')
-    - match: (['"])([^\\1\n]*?)(\1)
-      captures:
-        1: string.quoted.single punctuation.definition.string.begin
-        2: string.quoted.single
-        3: string.quoted.single punctuation.definition.string.end
-
-    - match: (['"])([^\\1\n]*?)(\n)
-      captures:
-        1: string.quoted.single punctuation.definition.string.begin
-        2: string.quoted.single
-        3: invalid.illegal.newline.asm
-      pop: true
-
-
-    # - match: "'"
-    #   scope: punctuation.definition.string.begin
-    #   push: [string-end, string-contents]
-    #   # push:
-    #   #   - meta_include_prototype: false
-    #   #   - meta_scope: string.quoted.single
-    #   #   - match: "'"
-    #   #     scope: punctuation.definition.string.end
-    #   #     pop: true
-    #   #   - match: \n
-    #   #     scope: invalid.illegal.newline.asm
-    #   #     set: eol-pop
-    # - match: '"'
-    #   scope: punctuation.definition.string.begin
-    #   push:
-    #     - meta_include_prototype: false
-    #     - meta_scope: string.quoted.double
-    #     - match: '"'
-    #       scope: punctuation.definition.string.end
-    #       pop: true
-    #     - match: \n
-    #       scope: invalid.illegal.newline.asm
-    #       pop: true
+  string:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
 
 
-  mnemonics-6502:
-    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
-      scope: keyword.mnemonic.6502
-
-  mnemonics-65c02:
-    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
-      scope: keyword.mnemonic.65c02
-
-  mnemonics-65816:
-    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
-      scope: keyword.mnemonic.65816
 
   mnemonics-65816-alt:
     - match: \b(?i:BLT|BGE|CPA)\b
