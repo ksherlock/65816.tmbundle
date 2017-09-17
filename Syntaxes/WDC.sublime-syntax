@@ -12,10 +12,11 @@ variables:
 contexts:
   prototype:
     - include: comment
+    - include: eol
   main:
-    - include: label
 
-  label:
+    - meta_include_prototype: false
+
     - match: '{{ws}}'
       push: opcode
 
@@ -36,15 +37,18 @@ contexts:
     - match: '^{{ident}}'
       scope: entity.name.label
 
+    - include: comment
+
 
   opcode:
     - match: '{{ws}}'
       set: operand
 
-    - include: mnemonics-6502
-    - include: mnemonics-65c02
-    - include: mnemonics-65c02s
-    - include: mnemonics-65816
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65c02s
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: mnemonics-65816-alt
 
     - match: \b(?i:EXTERNS|GLOBALS|INCDEBUG|CASE|CHKIMMED|LONGA|LONGI|SPACES|BIT7|SQUOTES|TWOCHAR|ARGCHK|MACFIRST|INCLIST|CONDLIST|MACLIST|PASS1)\b
       scope: keyword.directive
@@ -110,18 +114,20 @@ contexts:
   operand-module:
     - match: '\b{{ident}}\b'
       scope: entity.name.function
+      set: expect-comment
+    - include: expect-comment
 
   operand-on-off:
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
   operand-chip:
     - match: \b(?i:65816|65C02|W65C02S)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
   operand-title:
     - meta_include_prototype: false
@@ -142,20 +148,21 @@ contexts:
       scope: string.unquoted
     - match: \|
       set: comment
-    - match: \n
-      pop: true
+    - include: eol
 
   operand-fcc:
-    - meta_include_prototype: false
-    - match: '{{ws}}'
-    - match: (\S)(.+?)(\1)
-      captures:
-        1: punctuation.definition.string.begin
-        2: string.quoted
-        3: punctuation.definition.string.end
-      set: comment
-    - match: .
-      scope: invalid.illegal
+    - match: (\S)
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted
+        - match: \1
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal
+          pop: true
+
 
   operand-macro:
     - match: '\b{{ident}}\b'
@@ -215,36 +222,25 @@ contexts:
           scope: invalid.illegal.newline.asm
           pop: true
 
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal.expect.comment
+
   comment:
-    - match: ;[^\n]*
-      scope: comment.line.partial
-    - match: \n
-      pop: true
+    - match: ;
+      push:
+        - meta_scope: comment.line.partial
+        - match: \n
+          pop: true
+    - include: eol
 
-  mnemonics-6502:
-    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
-      scope: keyword.mnemonic.6502
-
-  mnemonics-65c02:
-    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
-      scope: keyword.mnemonic.65c02
-
-  mnemonics-65c02s:
-    - match: \b(?i:BBR|BBS|RMB|SMB)[0-7]\b
-      scope: keyword.mnemonic.65c02s
-
-  mnemonics-65816:
-    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
-      scope: keyword.mnemonic.65816
-
-  mnemonics-65816-long:
-    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
-      scope: keyword.mnemonic.65816.long
 
   mnemonics-65816-alt:
     - match: \b(?i:BLT|BGE|CPA|DEA|INA|RET|SWA|TAD|TAS|TDA|TSA|XOR)\b
       scope: keyword.mnemonic.65816.alt
 
-  mnemonics-65c02-m740:
-    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
-      scope: keyword.mnemonic.m740
+
+  eol:
+    - match: '$'
+      pop: true
