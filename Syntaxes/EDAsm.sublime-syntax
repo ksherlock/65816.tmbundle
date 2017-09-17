@@ -23,7 +23,7 @@ contexts:
     - match: '^{{ident}}'
       scope: entity.name.label
 
-    - match: ^[*]|;
+    - match: ^[*;]
       push:
         - meta_scope: comment.line
         - match: \n
@@ -79,16 +79,16 @@ contexts:
   operand-on-off:
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
   operand-lst:
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
     - match: \b(?i:NO)?(?i:CYC|GEN|WARN|UNASM|ASYM|VSYM|SIXUP|EXP)\b
       scope: constant.language
-    - match: '[^, \t]'
-      scope: invalid.illegal.operand
+    - match: ','
+    - include: expect-comment
 
   operand-path:
     - match: ([^; \n\t]+)
@@ -106,10 +106,12 @@ contexts:
 
 
   comment:
-    - match: ;[^\n]*
-      scope: comment.line.partial
-    - match: \n
-      pop: true
+    - match: ;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
 
   numbers:
     - match: \d+

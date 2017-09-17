@@ -28,7 +28,7 @@ contexts:
     - match: '^]?{{ident}}'
       scope: entity.name.label
 
-    - match: ^[*]|;
+    - match: ^[*;]
       push:
         - meta_scope: comment.line
         - match: \n
@@ -80,28 +80,40 @@ contexts:
 
   operand-string:
     - include: strings
+    - include: expect-comment
 
-    - match: \S
-      scope: invalid.illegal.operand
 
   operand-hex:
     - match: '[0-9A-Fa-f]{1,2}'
       scope: constant.numeric.hex
-    - match: '[^ \t,]'
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
+
 
   operand-on-off:
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
-    - match: \S
-      scope: invalid.illegal.operand
+      set: expect-comment
+    - include: expect-comment
 
+
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal.expect.comment
 
   comment:
-    - match: ;[^\n]*
-      scope: comment.line.partial
-    - match: \n
+    - match: ;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
+
+  eol:
+    - match: '$'
       pop: true
+
 
 
   mnemonics-65816-alt:
@@ -133,8 +145,3 @@ contexts:
         - match: '\n'
           scope: invalid.illegal.newline.asm
           pop: true
-
-
-  eol:
-    - match: '$'
-      pop: true

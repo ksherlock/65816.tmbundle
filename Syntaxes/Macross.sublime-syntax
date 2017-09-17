@@ -129,15 +129,16 @@ contexts:
 
   string:
     - match: '"'
-      scope: string
+      scope: punctuation.definition.string.begin
       push:
         - meta_include_prototype: false
-        - meta_scope: string
+        - meta_scope: string.quoted.double
         - match: '\n'
           pop: true
           scope: invalid.illegal.newline
         - match: '[^"\n]|\\.'
         - match: '"'
+          scope: punctuation.definition.string.end
           pop: true
 
   comments:

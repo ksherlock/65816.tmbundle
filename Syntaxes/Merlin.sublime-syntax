@@ -147,8 +147,8 @@ contexts:
   operand-hex:
     - match: '[0-9A-Fa-f]{2}'
       scope: constant.numeric.hex
-    - match: '[^ \t,]'
-      scope: invalid.illegal.operand
+    - match: ','
+    - include: expect-comment
 
 
   operand-path:
@@ -161,8 +161,8 @@ contexts:
     - include: strings
     - match: '[0-9A-Fa-f]{2}'
       scope: constant.numeric.hex
-    - match: '[^ \t,]'
-      scope: invalid.illegal.operand
+    - match: ','
+    - include: expect-comment
     
 
 
