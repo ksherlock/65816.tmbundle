@@ -1,7 +1,7 @@
 65816.tmbundle
 ==============
 
-This is a TextMate/Sublime Text 2 bundle for WDC's 65816 assembly language.  Some effort is taken to be 
+This is a TextMate/Sublime Text 2/3 bundle for WDC's 65816 assembly language.  Some effort is taken to be 
 slightly intelligent about some opcode/operand pairs.
 
 Currently supported:
@@ -11,4 +11,6 @@ Currently supported:
 * Merlin 8/16+ Assembler
 * NinjaForce Assembler
 * EDASM Assembler (6502)
+* WDC Assembler
+* [Macross Assembler](https://github.com/Museum-of-Art-and-Digital-Entertainment/macross)
 
