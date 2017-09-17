@@ -36,3 +36,7 @@ contexts:
   mnemonics-65c02-m740:
     - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
       scope: keyword.mnemonic.m740
+
+  mnemonics-sweet16:
+    - match: \b(?i:RTN|SET|LD|LDD|ST|STD|POP|POPD|STP|ADD|SUB|CPR|INR|DCR|BR|BNC|BC|BP|BM|BZ|BNZ|BM1|BNM1|BK|RS|BS)\b
+      scope: keyword.mnemonic.sweet16
