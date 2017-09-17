@@ -10,9 +10,9 @@ variables:
   ident: '[A-Za-z_][A-Za-z_0-9]*'
 
 contexts:
+  prototype:
+    - include: comments
   main:
-
-
 
     - match: '\b(?i:include)\b'
       scope: keyword.control.import
@@ -51,7 +51,6 @@ contexts:
     # - match: \n
     #   scope: invalid.illegal
     #   pop: true
-    - include: comments
     - match: '{{ident}}'
       scope: entitity.name.struct
       pop: true
@@ -64,7 +63,6 @@ contexts:
     # - match: \n
     #   scope: invalid.illegal
     #   pop: true
-    - include: comments
     - match: '\b(?i:while|until)\b'
       scope: keyword.control.import
       pop: true
@@ -85,10 +83,9 @@ contexts:
 
 
   block-content:
-    - include: comments
     - include: string
-    - include: mnemonics-6502
-    - include: mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
     - include: numbers
 
     - match: '({{ident}}):'
@@ -134,6 +131,7 @@ contexts:
     - match: '"'
       scope: string
       push:
+        - meta_include_prototype: false
         - meta_scope: string
         - match: '\n'
           pop: true
@@ -154,14 +152,6 @@ contexts:
         - meta_scope: comment.line
         - match: '\*/'
           pop: true
-
-  mnemonics-6502:
-    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
-      scope: keyword.mnemonic.6502
-
-  mnemonics-65c02:
-    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
-      scope: keyword.mnemonic.65c02
 
   numbers:
     - match: 0[0-7]+
