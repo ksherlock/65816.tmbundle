@@ -10,32 +10,43 @@ variables:
 
 contexts:
 
+  prototype:
+    - include: comment
+    - include: eol
+
   main:
 
     - meta_include_prototype: false
     - match: '{{ws}}'
-      set: opcode
+      push: opcode
 
     - match: '^({{ident}}){{ws}}((?i)START|PRIVATE|DATA|PRIVDATA)\b'
       captures:
         1: entity.name.function
         2: keyword.directive
-      set: operand-segname
+      push: operand-segname
 
 
     - match: '^{{ident}}'
       scope: entity.name.label
 
-    - match: ^[*;!.].*$
-      scope: comment.line
+    - match: ^[*;!.]
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
 
   opcode:
-    - include: comment
-
     - include: scope:source.asm.65816#mnemonics-6502
     - include: scope:source.asm.65816#mnemonics-65c02
     - include: scope:source.asm.65816#mnemonics-65816
     - include: mnemonics-65816-alt
+
+    # toolbox macros
+    - match: \b_[A-Za-z0-9]+\b
+      scope: support.function.macro.toolbox
+    - match: ~[A-Za-z0-9]+\b
+      scope: support.function.macro.toolbox
 
     - match: \b(?i:DC)\b
       scope: keyword.directive
@@ -86,7 +97,6 @@ contexts:
       set: operand
 
   operand:
-    - include: comment
     - include: numbers
     - include: strings
 
@@ -103,8 +113,6 @@ contexts:
       scope: invalid.illegal.operand
 
   operand-or-off:
-    - include: comment
-
     - match: \b(?i:OFF)\b
       scope: constant.language
       set: expect-comment
@@ -137,7 +145,6 @@ contexts:
 
 
   operand-on-off:
-    - include: comment
     - match: \b(?i:ON|OFF)\b
       scope: constant.language
       set: expect-comment
@@ -160,8 +167,6 @@ contexts:
     - include: operand-dc-format
 
   operand-dc-format:
-
-    - include: comment
 
     - match: ([bB])
       scope: storage.type
@@ -261,10 +266,17 @@ contexts:
 
 
   comment:
-    - match: ;[^\n]*
-      scope: comment.line.partial
+    - match: ;
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
+
+  eol:
     - match: '$'
-      set: main
+      pop: true
+
 
   numbers:
     - match: \d+
