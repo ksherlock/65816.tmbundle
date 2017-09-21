@@ -1,0 +1,10 @@
+<snippet>
+	<content><![CDATA[$1	START
+	${0:; ...}
+	END
+
+]]></content>
+	<tabTrigger>start</tabTrigger>
+	<scope>source.asm.65816.orcam entity.name.label</scope>
+	<description>start … end</description>
+</snippet>

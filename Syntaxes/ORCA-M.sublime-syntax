@@ -26,6 +26,13 @@ contexts:
         2: keyword.directive
       push: operand-segname
 
+    - match: '^({{ident}}){{ws}}((?i)GEQU)\b'
+      captures:
+        1: entity.name.constant
+        2: keyword.directive
+      push: operand
+
+
 
     - match: '^{{ident}}'
       scope: entity.name.label

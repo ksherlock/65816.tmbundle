@@ -1,0 +1,10 @@
+<snippet>
+	<content><![CDATA[$1	PRIVATE
+	${0:; ...}
+	END
+
+]]></content>
+	<tabTrigger>private</tabTrigger>
+	<scope>source.asm.65816.orcam entity.name.label</scope>
+	<description>private … end</description>
+</snippet>
