@@ -1,0 +1,229 @@
+%YAML 1.2
+---
+name: CA65
+scope: source.asm.ca65
+
+variables:
+  ident: '[A-Za-z_][A-Za-z0-9_]*'
+contexts:
+  prototype:
+    - include: comment
+    - match: $
+      pop: true
+
+  main:
+    - meta_include_prototype: false
+    - match: '\b{{ident}}:'
+      scope: entity.name.label
+      push: opcode
+
+    - match: '@{{ident}}:'
+      scope: entity.name.label.cheap
+      push: opcode
+
+    - match: ':'
+      scope: entity.name.label.anonymous
+      oush: opcode
+
+    - match: ;
+      scope: punctuation.definition.comment.ca65
+      push:
+        - meta_include_prototype: false
+        - meta_scope: comment.line.ca65
+        - match: \n
+          pop: true
+
+    - match: (\.(?i:proc))\s+({{ident}})\b
+      captures:
+        1: keyword.ca65
+        2: entity.name.function.ca65
+
+    - match: (\.(?i:scope))\s+({{ident}})\b
+      captures:
+        1: keyword.ca65
+        2: entity.name.scope.ca65
+
+
+    - match: (\.(?i:mac|macro))\s+({{ident}})\b
+      captures:
+        1: keyword.ca65
+        2: entity.name.macro.ca65
+      push: macro-parms
+
+
+    - match: \b({{ident}})\s*(=)
+      push: operand
+      captures:
+        1: entity.name.constant.ca65
+        2: keyword.operator.assignment.ca65
+
+    - match: '(?=\S)'
+      push: opcode
+
+  macro-parms:
+    - match: '\b{{ident}}\b'
+      scope: variable.parameter.macro.ca65
+
+  define-parms:
+    - match: \n
+      scope: invalid.illegal
+      pop: true
+    - match: \)
+      set: operand
+    - match: \b{{ident}}\b
+      scope: variable.parameter.define.ca65
+    - match: \,
+    - match: \S
+      scope: invalid.illegal
+
+
+
+  opcode:
+    - meta_content_scope: meta.opcode
+    - include: directives
+    - include: mnemonics-6502
+    - include: mnemonics-65c02
+    - include: mnemonics-65816
+    - include: mnemonics-65816-alt
+
+  directives:
+
+    - match: '(\.(?i:define))\s+({{ident}})\s*\('
+      captures:
+        1: keyword.ca65
+        2: entity.name.define.ca65
+      set: define-parms
+
+    - match: '(\.(?i:define))\s+({{ident}})\b'
+      captures:
+        1: keyword.ca65
+        2: entity.name.define.ca65
+      set: operand
+
+    - match: '(\.(?i:enum))\s+({{ident}})\b'
+      captures:
+        1: keyword.ca65
+        2: entity.name.enum.ca65
+      set: operand
+
+
+    - match: '(\.(?i:struct|union))\s+({{ident}})\b'
+      captures:
+        1: keyword.ca65
+        2: entity.name.struct.ca65
+      set: operand
+
+
+
+    - match: \.(?i:if|endif|else)\b
+      scope: keyword.control.ca65
+      set: operand
+
+    - match: \.(?i:include|incbin)\b
+      scope: keyword.control.import
+      set: operand
+
+
+
+    - match: '\.(?i:A16|A8|ADDR|ALIGN|ASCIIZ|ASSERT|AUTOIMPORT|BANKBYTES|BSS|BYT|BYTE|CASE|CHARMAP|CODE|CONDES|CONSTRUCTOR)\b'
+      scope: keyword.ca65
+      set: operand
+    - match: '\.(?i:DATA|DBYT|DEBUGINFO|DEF|DEFINE|DEFINED|DESTRUCTOR|DWORD|ELSE|ELSE|END|ENDENUM|ENDIF|ENDMAC|ENDMACRO|ENDPROC|ENDREP|ENDREPEAT|ENDSCOPE|ENDSTRUCT|ENUM|ERROR|EXITMAC|EXITMACRO|EXPORT|EXPORTZP)\b'
+      scope: keyword.ca65
+      set: operand
+    - match: '\.(?i:FARADDR|FEATURE|FILEOPT|FOPT|FORCEIMPORT|GLOBAL|GLOBALZP|HIBYTES|I16|I8|IF|IFCONST|IFDEF|IFNBLANK|IFNDEF|IFP02|IFP816|IFPC02|IFPSC02|IFREF|IMPORT|IMPORTZP|INCBIN|INCLUDE|INTERRUPTOR)\b'
+      scope: keyword.ca65
+      set: operand
+    - match: '\.(?i:LINECONT|LIST|LISTBYTES|LOBYTES|LOCAL|LOCALCHAR|MACPACK|MAC|MACRO|ORG|OUT|PO2|P816|PAGELEN|PAGELENGTH|PC02|POPSEG|PROC|PSC02|PUSHSEG)\b'
+      scope: keyword.ca65
+      set: operand
+    - match: '\.(?i:RELOC|REPEAT|RES|RODATA|SCOPE|SEGMENT|SETCPU|SMART|STRUCT|SUNPLUS|TAG|WARNING|WORD|ZEROPAGE)\b'
+      scope: keyword.ca65
+      set: operand
+
+
+  operand:
+    - include: numbers
+    - include: strings
+    - match: $
+      set: main
+
+    - match: \.(?i:CPU|PARAMCOUNT|TIME|VERSION)\b
+      scope: support.constant.ca65
+    - match: \.(?i:BANKBYTE|BLANK|CONCAT|CONST|HIBYTE|HIWORD|IDENT|LEFT|LOBYTE|LOWORD|MATCH|MID|REF|REFERENCED|RIGHT|SIZEOF|STRAT|SPRINTF|STRING|STRLEN|TCOUNT|XMATCH)\b
+      scope: support.function.ca65
+
+  numbers:
+    - match: \b\d+\b
+      scope: constant.numeric.ca65
+    - match: \$[A-Fa-f0-9]+\b
+      scope: constant.numeric.hex.ca65
+    - match: \b[A-Fa-f0-9]+h\b
+      scope: constant.numeric.hex.ca65
+    - match: \%[01]+\b
+      scope: constant.numeric.binary.ca65
+
+
+  comment:
+    - match: ;
+      scope: punctuation.definition.comment.ca65
+      push:
+        - meta_include_prototype: false
+        - meta_scope: comment.line.ca65
+        - match: \n
+          pop: true
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.ca65
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double.ca65
+        - match: \""|[^"\n] # '' to escape
+        - match: '"'
+          scope: punctuation.definition.string.end.ca65
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.ca65
+          pop: true
+
+
+  mnemonics-6502:
+    - match: \b(?i:ADC|AND|ASL|BCC|BCS|BEQ|BIT|BMI|BNE|BPL|BRK|BVC|BVS|CLC|CLD|CLI|CLV|CMP|CPX|CPY|DEC|DEX|DEY|EOR|INC|INX|INY|JMP|JSR|LDA|LDX|LDY|LSR|NOP|ORA|PHA|PHP|PLA|PLP|ROL|ROR|RTI|RTS|SBC|SEC|SED|SEI|STA|STX|STY|TAX|TAY|TSX|TXA|TXS|TYA)\b
+      scope: keyword.mnemonic.6502
+      set: operand
+
+  mnemonics-65c02:
+    - match: \b(?i:BRA|PHX|PHY|PLX|PLY|STP|STZ|TRB|TSB|WAI)\b
+      scope: keyword.mnemonic.65c02
+      set: operand
+
+  mnemonics-65c02s:
+    - match: \b(?i:BBR|BBS|RMB|SMB)[0-7]\b
+      scope: keyword.mnemonic.65c02s
+      set: operand
+
+  mnemonics-65816:
+    - match: \b(?i:BRL|COP|JML|JSL|MVN|MVP|PEA|PEI|PER|PHB|PHD|PHK|PLB|PLD|REP|RTL|SEP|TCD|TCS|TDC|TSC|TXY|TYX|WDM|XBA|XCE)\b
+      scope: keyword.mnemonic.65816
+      set: operand
+
+  mnemonics-65816-long:
+    - match: \b(?i:ADCL|ANDL|CMPL|EORL|LDAL|ORAL|SBCL|STAL)\b
+      scope: keyword.mnemonic.65816.long
+      set: operand
+
+  mnemonics-65816-alt:
+    - match: \b(?i:BLT|BGE|CPA|DEA|INA|SWA|TAS|TSA)\b
+      scope: keyword.mnemonic.65816.alt
+      set: operand
+
+  mnemonics-65c02-m740:
+    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
+      scope: keyword.mnemonic.m740
+      set: operand
+
+  mnemonics-sweet16:
+    - match: \b(?i:RTN|SET|LD|LDD|ST|STD|POP|POPD|STP|ADD|SUB|CPR|INR|DCR|BR|BNC|BC|BP|BM|BZ|BNZ|BM1|BNM1|BK|RS|BS)\b
+      scope: keyword.mnemonic.sweet16
+      set: operand
