@@ -1,5 +1,5 @@
 {
-	"scope": "source.asm.ca65 meta.opcode",
+	"scope": "source.asm.ca65 meta.directive",
 	"completions":
 	[
 		".a16",

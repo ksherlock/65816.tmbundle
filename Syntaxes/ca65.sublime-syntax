@@ -13,6 +13,15 @@ contexts:
 
   main:
     - meta_include_prototype: false
+
+
+    - match: \b({{ident}})\s*(:?=)
+      push: operand
+      captures:
+        1: entity.name.constant.ca65
+        2: keyword.operator.assignment.ca65
+
+
     - match: '\b{{ident}}:'
       scope: entity.name.label
       push: opcode
@@ -51,11 +60,7 @@ contexts:
       push: macro-parms
 
 
-    - match: \b({{ident}})\s*(=)
-      push: operand
-      captures:
-        1: entity.name.constant.ca65
-        2: keyword.operator.assignment.ca65
+
 
     - match: '(?=\S)'
       push: opcode
@@ -88,59 +93,61 @@ contexts:
 
   directives:
 
+
     - match: '(\.(?i:define))\s+({{ident}})\s*\('
       captures:
-        1: keyword.ca65
+        1: meta.directive keyword.ca65
         2: entity.name.define.ca65
       set: define-parms
 
     - match: '(\.(?i:define))\s+({{ident}})\b'
       captures:
-        1: keyword.ca65
+        1: meta.directive keyword.ca65
         2: entity.name.define.ca65
       set: operand
 
     - match: '(\.(?i:enum))\s+({{ident}})\b'
       captures:
-        1: keyword.ca65
+        1: meta.directive keyword.ca65
         2: entity.name.enum.ca65
       set: operand
 
 
     - match: '(\.(?i:struct|union))\s+({{ident}})\b'
       captures:
-        1: keyword.ca65
+        1: meta.directive keyword.ca65
         2: entity.name.struct.ca65
       set: operand
 
 
 
     - match: \.(?i:if|endif|else)\b
-      scope: keyword.control.ca65
+      scope: meta.directive keyword.control.ca65
       set: operand
 
     - match: \.(?i:include|incbin)\b
-      scope: keyword.control.import
+      scope: meta.directive keyword.control.import.ca65
       set: operand
-
 
 
     - match: '\.(?i:A16|A8|ADDR|ALIGN|ASCIIZ|ASSERT|AUTOIMPORT|BANKBYTES|BSS|BYT|BYTE|CASE|CHARMAP|CODE|CONDES|CONSTRUCTOR)\b'
-      scope: keyword.ca65
+      scope: meta.directive keyword.ca65
       set: operand
     - match: '\.(?i:DATA|DBYT|DEBUGINFO|DEF|DEFINE|DEFINED|DESTRUCTOR|DWORD|ELSE|ELSE|END|ENDENUM|ENDIF|ENDMAC|ENDMACRO|ENDPROC|ENDREP|ENDREPEAT|ENDSCOPE|ENDSTRUCT|ENUM|ERROR|EXITMAC|EXITMACRO|EXPORT|EXPORTZP)\b'
-      scope: keyword.ca65
+      scope: meta.directive keyword.ca65
       set: operand
     - match: '\.(?i:FARADDR|FEATURE|FILEOPT|FOPT|FORCEIMPORT|GLOBAL|GLOBALZP|HIBYTES|I16|I8|IF|IFCONST|IFDEF|IFNBLANK|IFNDEF|IFP02|IFP816|IFPC02|IFPSC02|IFREF|IMPORT|IMPORTZP|INCBIN|INCLUDE|INTERRUPTOR)\b'
-      scope: keyword.ca65
+      scope: meta.directive keyword.ca65
       set: operand
     - match: '\.(?i:LINECONT|LIST|LISTBYTES|LOBYTES|LOCAL|LOCALCHAR|MACPACK|MAC|MACRO|ORG|OUT|PO2|P816|PAGELEN|PAGELENGTH|PC02|POPSEG|PROC|PSC02|PUSHSEG)\b'
-      scope: keyword.ca65
+      scope: meta.directive keyword.ca65
       set: operand
     - match: '\.(?i:RELOC|REPEAT|RES|RODATA|SCOPE|SEGMENT|SETCPU|SMART|STRUCT|SUNPLUS|TAG|WARNING|WORD|ZEROPAGE)\b'
-      scope: keyword.ca65
+      scope: meta.directive keyword.ca65
       set: operand
 
+    - match: \.{{ident}}
+      scope: meta.directive
 
   operand:
     - include: numbers
@@ -152,6 +159,12 @@ contexts:
       scope: support.constant.ca65
     - match: \.(?i:BANKBYTE|BLANK|CONCAT|CONST|HIBYTE|HIWORD|IDENT|LEFT|LOBYTE|LOWORD|MATCH|MID|REF|REFERENCED|RIGHT|SIZEOF|STRAT|SPRINTF|STRING|STRLEN|TCOUNT|XMATCH)\b
       scope: support.function.ca65
+    - match: \.(?i:BITNOT|MOD|BITAND|BITXOR|SHL|SHR|BITOR|AND|XOR|OR|NOT)\b
+      scope: keyword.operator.ca65
+    - match: '<<|>>|<>|<=|>=|\|\||&&'
+      scope: keyword.operator.ca65
+    - match: '[-+~<>^*/&|=!]'
+      scope: keyword.operator.ca65
 
   numbers:
     - match: \b\d+\b
