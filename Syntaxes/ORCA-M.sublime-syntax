@@ -59,7 +59,7 @@ contexts:
       scope: keyword.directive
       set: operand-dc
 
-    - match: \b(?i:APPEND|COPY|KEEP|MCOPY)\b
+    - match: \b(?i:APPEND|COPY|KEEP|MCOPY|MLOAD|MDROP)\b
       scope: keyword.control.import
       set: operand-path
 
