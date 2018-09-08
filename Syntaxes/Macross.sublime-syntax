@@ -155,16 +155,16 @@ contexts:
           pop: true
 
   numbers:
-    - match: 0[0-7]+
+    - match: \b0[0-7]+\b
       scope: constant.numeric.octal
-    - match: 0[xX][0-9A-Fa-f]+
+    - match: \b0[xX][0-9A-Fa-f]+\b
       scope: constant.numeric.hexadecimal
-    - match: 0[qQ][0-3]+
+    - match: \b0[qQ][0-3]+\b
       scope: constant.numeric.quarters
-    - match: 0[bB][01]+
+    - match: \b0[bB][01]+\b
       scope: constant.numeric
 
-    - match: \d+
+    - match: \b\d+\b
       scope: constant.numeric
 
     - match: \'([^'\n]|\\.)\'

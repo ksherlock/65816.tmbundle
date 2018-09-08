@@ -114,13 +114,13 @@ contexts:
     - include: eol
 
   numbers:
-    - match: \d+
+    - match: \b\d+\b
       scope: constant.numeric
-    - match: \$[0-9a-fA-F]+
+    - match: \$[0-9a-fA-F]+\b
       scope: constant.numeric.hex
-    - match: \%[01]+
+    - match: \%[01]+\b
       scope: constant.numeric.binary
-    - match: \@[0-7]+
+    - match: \@[0-7]+\b
       scope: constant.numeric.octal
 
   strings:

@@ -233,14 +233,27 @@ contexts:
       scope: keyword.mnemonic.65816.alt
 
   numbers:
-    - match: \d+
+    - match: \b\d+\b
       scope: constant.numeric
-    - match: \$[0-9a-fA-F]+
+    - match: \$[0-9a-fA-F]+\b
       scope: constant.numeric.hex
-    - match: \%[01_]+
+    - match: \%[01_]+\b
       scope: constant.numeric.binary
 
   strings:
+    # special case for ''' and """
+    - match: "(')'(')"
+      captures:
+        0: string.quoted.single
+        1: punctuation.definition.string.begin
+        2: punctuation.definition.string.end
+
+    - match: '(")"(")'
+      captures:
+        0: string.quoted.double
+        1: punctuation.definition.string.begin
+        2: punctuation.definition.string.end
+
     - match: "'"
       scope: punctuation.definition.string.begin
       push:

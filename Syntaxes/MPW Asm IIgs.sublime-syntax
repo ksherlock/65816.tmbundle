@@ -21,20 +21,20 @@ contexts:
     - match: '^({{ident}}){{ws}}((?i)PROC|PROCNAME|FUNC|INIT)\b'
       captures:
         1: entity.name.function
-        2: keyword.directive
+        2: meta.opcode keyword.directive
       push: operand-proc
 
 
     - match: '^({{ident}}){{ws}}((?i)STACKDP)\b'
       captures:
         1: entity.name.function
-        2: keyword.directive
+        2: meta.operand keyword.directive
       push: operand-stackdp
 
     - match: '^({{ident}}){{ws}}((?i)RECORD)\b'
       captures:
         1: entity.name.record
-        2: keyword.directive
+        2: meta.operand keyword.directive
       push: operand-record
 
 
@@ -53,8 +53,11 @@ contexts:
           pop: true
 
   opcode:
+    - meta_content_scope: meta.opcode
+
     - match: '{{ws}}'
       set: operand
+
     - include: scope:source.asm.65816#mnemonics-6502
     - include: scope:source.asm.65816#mnemonics-65c02
     - include: scope:source.asm.65816#mnemonics-65816
@@ -62,6 +65,7 @@ contexts:
     - include: mnemonics-65816-alt
 
     # toolbox macros
+    # matches _ for toolbox completion.
     - match: \b_[A-Za-z0-9]+\b
       scope: support.function.macro.toolbox
 
@@ -249,6 +253,8 @@ contexts:
     - include: expect-comment
 
   operand:
+    - meta_content_scope: meta.operand
+
     - include: macro-parm
 
     - include: numbers
@@ -266,13 +272,13 @@ contexts:
 
 
   numbers:
-    - match: \d+
+    - match: \b\d+\b
       scope: constant.numeric
-    - match: \$[0-9a-fA-F]+
+    - match: \$[0-9a-fA-F]+\b
       scope: constant.numeric.hex
-    - match: \%[01]+
+    - match: \%[01]+\b
       scope: constant.numeric.binary
-    - match: \@[0-7]+
+    - match: \@[0-7]+\b
       scope: constant.numeric.octal
 
   strings:
