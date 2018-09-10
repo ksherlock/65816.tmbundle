@@ -92,6 +92,11 @@ contexts:
     - match: \b(?i:PMC|ORG|REL|TYP|DUM|DEND|END|CHK|DAT|ERR|EXT|EXD|OBJ|VAR|AST|DAT|PAG|SKP|CHK|ERR|KBD|PAU|SW|USR)\b
       scope: keyword.directive
 
+    # IF MX..
+    # IF char=]\d
+    - match: \b(?i:IF)\b
+      scope: keyword.control.conditional
+      set: if-operand
 
     - match: \b(?i:DO|ELSE|IF|FIN)\b
       scope: keyword.control.conditional
@@ -142,7 +147,21 @@ contexts:
   operand:
     - include: numbers
     - include: strings
+    - match: ']\d+'
+      scope: variable.other
     #- include: macro-parm 
+
+  if-operand:
+
+    - match: \b(?i:MX)\b
+      scope: constant.language
+    - match: '(.)[,=](]\d+)'
+      captures:
+        1: string.unquoted
+        2: variable.other
+
+    - include: numbers
+
 
   operand-hex:
     - match: '[0-9A-Fa-f]{2}'
@@ -162,6 +181,8 @@ contexts:
     - match: '[0-9A-Fa-f]{2}'
       scope: constant.numeric.hex
     - match: ','
+    - match: ']\d+'
+      scope: variable.other
     - include: expect-comment
     
 
@@ -220,7 +241,7 @@ contexts:
       scope: invalid.illegal.expect.comment
 
   comment:
-    - match: ;
+    - match: (?<=[\t ]);
       push:
         - meta_scope: comment.line
         - match: \n
