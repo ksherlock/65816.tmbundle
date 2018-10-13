@@ -2,6 +2,18 @@
 	{
 		"caption": "Merlin To Text",
 		"command": "merlin_to_text"
+	},
+	{
+		"caption": "Merlin MacGen",
+		"command": "merlin_mac_gen"
+	},
+	{
+		"caption": "ORCA/M MacGen",
+		"command": "orca_mac_gen"
+	},
+	{
+		"caption": "MPW Asm IIgs MacGen",
+		"command": "mpw_mac_gen"
 	}
 ]
 

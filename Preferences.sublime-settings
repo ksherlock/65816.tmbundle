@@ -1,0 +1,5 @@
+{
+	"merlin_macro_directories": ["/Library/GoldenGate/Libraries/Merlin"],
+	"orca_macro_directories": ["/Library/GoldenGate/Libraries/AInclude/", "/Library/GoldenGate/Libraries/ORCAInclude"],
+	"mpw_macro_directories": ["/Library/MPW/Interfaces/AIIGSIncludes/"]
+}
