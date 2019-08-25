@@ -435,6 +435,8 @@ class MpwMacGen(sublime_plugin.TextCommand):
 
 			label = tokens[0].upper()
 			opcode = tokens[1].upper()
+			ix = opcode.find('.')
+			if ix >= 0: opcode = opcode[:ix]
 
 			if opcode == "MACRO":
 				state = 1
@@ -448,7 +450,10 @@ class MpwMacGen(sublime_plugin.TextCommand):
 				state = 0
 				continue
 
+
+
 			if opcode in self.opcodes: continue
+			if opcode in known: continue
 			missing.add(opcode)
 
 
