@@ -73,7 +73,7 @@ contexts:
       scope: support.function.smart-macro.toolbox
 
 
-    - match: \b(?i:DFB|DB|DDB|DA|DW|ADR|ADRL|DS)\b
+    - match: \b(?i:DFB|DB|DDB|DA|DW|ADR|ADRL|DL|DS)\b
       scope: keyword.directive.data
 
     - match: \b(?i:HEX)\b
