@@ -1,0 +1,185 @@
+%YAML 1.2
+---
+# AUX, ZIP, IMP, PFX, REZ - quick asm extensions.
+name: Merlin Link Script
+file_extensions:
+  - S
+scope: source.linker.merlin
+
+variables:
+  ws: '[ \t]+'
+  ident: '[:-~][0-~]*'
+
+
+contexts:
+  prototype:
+    - include: comment
+    - include: eol
+  main:
+
+    - meta_include_prototype: false
+
+    - match: ^[;*]
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
+    - match: '^{{ident}}'
+      scope: entity.name.label
+
+    - match: '{{ws}}'
+      push: opcode
+
+  eol:
+    - match: '$'
+      pop: true
+
+  comment:
+    - match: (?<=[\t ]);
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
+
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal.expect.comment
+
+  numbers:
+    - match: \b\d+\b
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+\b
+      scope: constant.numeric.hex
+    - match: \%[01_]+\b
+      scope: constant.numeric.binary
+
+  strings:
+    # special case for ''' and """
+    - match: "(')'(')"
+      captures:
+        0: string.quoted.single
+        1: punctuation.definition.string.begin
+        2: punctuation.definition.string.end
+
+    - match: '(")"(")'
+      captures:
+        0: string.quoted.double
+        1: punctuation.definition.string.begin
+        2: punctuation.definition.string.end
+
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+
+
+  opcode:
+    - match: '{{ws}}'
+      set: expect-comment
+
+      # numeric operand
+    - match: \b(?i:ORG|ADR|DS|KND|KIND?|LKV|VER|DO|EQU|GEQ|ALI|RTY|RID|RAT|AUX)\b
+      scope: keyword.directive
+      set: operand-number
+
+    - match: '='
+      scope: keyword.directive
+      set: operand-number
+
+
+    - match: \b(?i:TYP)\b
+      scope: keyword.directive
+      set: operand-typ
+
+      # path operand
+    - match: \b(?i:PUT|ASM|LINK?|LNK|SAV|IF|LIB|RES|FIL|IMP|PFX|REZ)\b
+      scope: keyword.directive
+      set: operand-path
+
+    - match: \b(?i:CMD)\b
+      scope: keyword.directive
+      set: operand-free-text
+
+    - match: \b(?i:KBD)\b
+      scope: keyword.directive
+      set: operand-string
+
+    - match: \b(?i:OVR)\b
+      scope: keyword.directive
+      set: operand-ovr
+
+      # no operand
+    - match: \b(?i:END|DAT|ENT|EXT|NOL|FAS|ELS|FIN)\b
+      scope: keyword.directive
+      set: operand-none
+
+    - match: \b(?i:POS|LEN)\b
+      scope: keyword.directive
+      set: operand-label
+
+
+
+  operand-none:
+    - include: expect-comment
+
+  operand-label:
+    - match: '{{ident}}'
+      scope: entity.name.label
+      set: expect-comment
+    - include: expect-comment
+
+  operand-ovr:
+      # OVR ALL | OFF | <blank>
+    - match: \b(?i:ALL|OFF)\b
+      scope: constant.language
+      set: expect-comment
+    - include: expect-comment
+
+  operand-path:
+    - match: \S+
+      scope: string.unquoted
+      set: expect-comment
+    - include: expect-comment
+
+  operand-free-text:
+    - match: '.'
+      scope: string.unquoted
+
+  operand-typ:
+      # TYP <short name or number>
+    - include: numbers
+    - match: \b(?i:BAD|BIN|TXT|DIR|ADB|AWP|ASP|GSB|TDF|BDF|SRC|OBJ|LIB|S16|RTL|EXE|PIF|TIF|NDA|CDA|TOL|DRV|DOC|PNT|PIC|FON|PAS|CMD)\b
+      scope: constant.language
+    - include: expect-comment
+
+  operand-number:
+    - include: numbers
+    - match: '{{ident}}'
+      scope: entity.name.label
+      set: expect-comment
+    - include: expect-comment
+
+  operand-string:
+    - include: strings
+    - include: expect-comment
