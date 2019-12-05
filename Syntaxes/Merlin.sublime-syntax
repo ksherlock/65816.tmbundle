@@ -113,6 +113,9 @@ contexts:
       scope: keyword.directive
       set: operand-off
 
+    - match: \b(?i:MX)\b
+      scope: keyword.directive
+
     - match: \b(?i:CAS)\b
       scope: keyword.directive
       set: operand-cas
