@@ -89,7 +89,7 @@ contexts:
     - match: =|<<<|--\^|>>>
       scope: keyword.directive
 
-    - match: \b(?i:PMC|ORG|REL|TYP|DUM|DEND|END|CHK|DAT|ERR|EXT|EXD|OBJ|VAR|AST|DAT|PAG|SKP|CHK|ERR|KBD|PAU|SW|USR)\b
+    - match: \b(?i:PMC|ORG|REL|TYP|DUM|DEND|END|CHK|DAT|ERR|EXT|EXD|OBJ|VAR|AST|DAT|PAG|SKP|CHK|ERR|KBD|PAU|SW|USR|MAC|EOM)\b
       scope: keyword.directive
 
     # IF MX..
