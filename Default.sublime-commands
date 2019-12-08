@@ -8,6 +8,10 @@
 		"command": "merlin_mac_gen"
 	},
 	{
+		"caption": "Merlin Fix Space",
+		"command": "merlin_fixs"
+	},
+	{
 		"caption": "ORCA/M MacGen",
 		"command": "orca_mac_gen"
 	},
