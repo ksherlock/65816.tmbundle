@@ -219,12 +219,11 @@ contexts:
 
   operand-print:
     - include: macro-parm
+    - match: ','
     - match: \b(?i:ON|OFF|PUSH|POP)\b
       scope: constant.language
-      set: expect-comment
     - match: \b(?i:NO)?(?i:GEN|PAGE|WARN|MCALL|OBJ|DATA|MDIR|HDR|LITS|STAT|SYM)\b
       scope: constant.language
-      set: expect-comment
     - include: expect-comment
 
 
