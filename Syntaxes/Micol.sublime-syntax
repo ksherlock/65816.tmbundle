@@ -1,0 +1,113 @@
+%YAML 1.2
+---
+name: Micol Macro Assembler
+scope: source.asm.65816.micol
+
+# https://archive.org/details/Micol-Macro_Assembler_V2.01/
+
+variables:
+  ws: '[ \t]+'
+  ident: '[A-Za-z][A-Za-z0-9_]*'
+
+contexts:
+
+  prototype:
+    - include: eol
+
+  main:
+    - meta_include_prototype: false
+
+    - match: ^[;]
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
+    - match: '{{ws}}'
+      push: opcode
+
+      # all labels need an opcode.
+      # LABEL is a reserved label.
+
+    - match: ^{{ident}}
+      scope: entity.name.label
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: mnemonics-65816-alt
+
+    - match: <<<|>>>
+      scope: keyword.directive
+
+    - match: \b(?i:EQU|ORG|PRG|EJT|LST|NLT|NPR|PRI|EMU|I08|I16|M08|M16|NAT)\b
+      scope: keyword.directive
+
+    - match: \b(?i:RES|ABS|ASC|BYT|LWD|WOR)\b
+      scope: keyword.directive.data
+
+      # macro
+    - match: \b(?i:EXP|MAC|TMC)\b
+      scope: keyword.directive
+
+    - match: \b(?i:CHN|INS)\b
+      scope: keyword.control.import
+      set: operand-path
+
+    - match: \b(?i:ELS|IFF|STP)\b
+      scope: keyword.control.conditional
+
+
+  mnemonics-65816-alt:
+    - match: \b(?i:DEA|INA)\b
+      scope: keyword.mnemonic.65816.alt
+
+  operand:
+    - include: numbers
+    - include: strings
+
+
+    # LABFW, LABBK, A, X, Y are reserved labels.
+    - match: \b(?i:LABEL|LABBK|LABFW|A|X|Y)\b
+      scope: entity.name.label
+      # scope: variable.language
+
+      # macro parms
+    - match: \?[0-9A-Za-z]\b
+      scope: variable.other
+
+  operand-path:
+    - match: \S+
+      scope: string.unquoted
+
+
+  numbers:
+    - match: \b\d+\b
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+\b
+      scope: constant.numeric.hex
+    - match: \%[01]+\b
+      scope: constant.numeric.binary
+    - match: \@[0-7]+\b
+      scope: constant.numeric.oct
+
+  strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: '\n'
+          scope: invalid.illegal.newline.asm
+          pop: true
+
+  eol:
+    - match: '$'
+      pop: true
