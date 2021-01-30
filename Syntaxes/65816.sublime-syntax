@@ -34,7 +34,7 @@ contexts:
       scope: keyword.mnemonic.65816.alt
 
   mnemonics-65c02-m740:
-    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST)\b
+    - match: \b(?i:CLT|COM|LDM|RRF|SET|TST|MUL|DIV|CLB|SEB|BBC|BBS)\b
       scope: keyword.mnemonic.m740
 
   mnemonics-sweet16:
