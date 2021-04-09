@@ -99,7 +99,7 @@ contexts:
       set: expect-comment
 
       # numeric operand
-    - match: \b(?i:ORG|ADR|DS|KND|KIND?|LKV|VER|DO|EQU|GEQ|ALI|RTY|RID|RAT|AUX)\b
+    - match: \b(?i:ORG|ADR|DS|KND|KIND?|LKV|VER|DO|EQU|GEQU?|ALI|RTY|RID|RAT|AUX)\b
       scope: keyword.directive
       set: operand-number
 
