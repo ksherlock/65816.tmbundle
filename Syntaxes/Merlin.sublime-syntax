@@ -7,6 +7,7 @@ scope: source.asm.65816.merlin
 variables:
   ws: '[ \t]+'
   ident: '[:-~][0-~]*'
+  lident: '[\]:][0-~]*'
 
 contexts:
   prototype:
@@ -27,7 +28,7 @@ contexts:
 
     - match: '^({{ident}}){{ws}}((?i)MAC)\b'
       captures:
-        1: entity.name.macro
+        1: entity.name.function
         2: keyword.directive
       push: operand
 
@@ -50,10 +51,12 @@ contexts:
         2: keyword.directive
       push: operand
 
+    - match: '^{{lident}}'
+      scope: entity.name.label.local
 
 
     - match: '^{{ident}}'
-      scope: entity.name.label
+      scope: entity.name.function
 
 
   opcode:
