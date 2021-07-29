@@ -70,7 +70,7 @@ contexts:
       scope: support.function.macro.toolbox
 
 
-    - match: \b((?i)DC|DCB|DS)([.](.))?
+    - match: \b((?i)DCB|DC|DS)([.](.))?
       scope: meta.dc.directive
       captures:
         1: keyword.directive.data
