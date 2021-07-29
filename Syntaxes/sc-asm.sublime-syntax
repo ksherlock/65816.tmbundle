@@ -1,0 +1,220 @@
+%YAML 1.2
+---
+name: S-C Assembler
+file_extensions: []
+scope: source.asm.sc-asm
+
+variables:
+  ws: '[ \t]+'
+  xws: '[ \t\x08]*'
+  ident: '[A-Za-z][A-Za-z0-9.]*'
+  lident: '.[0-9]{1,2}'
+
+contexts:
+  prototype:
+    - include: eol
+  main:
+
+    - meta_include_prototype: false
+
+    - match: ^[*]
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+
+
+      # assembler commands. there are others but these are used by a2osx...
+    - match: '^{{xws}}((?i)NEW|AUTO|MANUAL|MAN|ASM)\b'
+      captures:
+        1: keyword.directive
+      # scope: keyword.directive
+      push:
+        - match: $
+          pop: true
+
+    - match: '^{{xws}}((?i)SAVE|LOAD)\b'
+      captures:
+        1: keyword.directive
+      # scope: keyword.directive
+      push: operand-path
+
+
+
+
+    - match: '{{ws}}'
+      push: opcode
+
+    - match: '^{{ws}}((?i)\.MA)\s({{ident}})'
+      captures:
+        2: keyword.directive
+        1: entity.name.function
+      push: eol
+
+
+    - match: '^({{ident}}){{ws}}\.((?i)EQ)\b'
+      captures:
+        1: entity.name.constant
+        2: keyword.directive
+      push: operand
+
+    - match: '^{{lident}}'
+      scope: entity.name.label.local
+
+
+    - match: '^{{ident}}'
+      scope: entity.name.function
+
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65c02s
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: mnemonics-6502-alt
+
+
+    - match: \.(?i:DA)\b
+      scope: keyword.directive.data
+      set: operand
+
+    - match: \.(?i:HS)\b
+      scope: keyword.directive.data
+      set: operand-hex
+
+    - match: \.(?i:AS|AT|AZ)\b
+      scope: keyword.directive.data
+      set: operand-string
+
+    - match: \.(?i:OP)\b
+      scope: keyword.directive
+      set: operand-op
+
+
+    - match: \.(?i:INB|IN|TF)\b
+      scope: keyword.control.import
+      set: operand-path
+
+
+    - match: \.(?i:LIST)\b
+      scope: keyword.directive
+      set: operand-list
+    
+
+    - match: \.(?i:AC|AS|AT|AZ|BS|DA|DO|DUMMY|ED|ELSE|EM|EN|EP|EQ|FIN|HS|IN|INB|LIST|MA|OP|OR|PG|PH|TA|TF|TI|US)\b
+      scope: keyword.directive
+
+
+
+    - match: '>{{ident}}'
+      scope: variable.function.macro
+      set: operand
+
+
+
+  operand:
+    - include: numbers
+    - include: strings
+    - match: ']\d+'
+      scope: variable.other
+    #- include: macro-parm 
+
+
+
+  operand-op:
+    - match: '(?i:6502|SW16|65C02|65R02|65802|65816)'
+      scope: constant.language
+      set: comment
+    - include: error
+
+  operand-hex:
+    - match: '[0-9A-Fa-f]{2}'
+      scope: constant.numeric.hex
+    - include: expect-comment
+
+
+  operand-path:
+    - match: \S+
+      scope: string.unquoted
+      set: expect-comment
+    - include: expect-comment
+
+  # -? delimiter (anything but delimiter)* delimiter
+  # pop: 1 needed for \1 backref matching.
+  operand-string:
+
+    - match: '-?([^ \t-])'
+      scope: punctuation.definition.string.begin
+      push: [comment, operand-string-inner]
+
+    # - include: expect-comment
+
+  operand-string-inner:
+    - meta_scope: string.quoted
+    - match: \1
+      scope: punctuation.definition.string.end
+      pop: true
+
+
+  operand-list:
+      # .LIST ON | OFF | CON | COFF | MON | MOFF | XON | XOFF
+    - match: \b(?i:[CMX]?ON|[CMX]?OFF)\b
+      scope: constant.language
+      set: comment
+
+    - include: error
+
+
+
+  error:
+    - match: \S
+      scope: invalid.illegal.expect.comment
+
+
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal.expect.comment
+
+  comment:
+    - match: (?<=[\t ])
+      push:
+        - meta_scope: comment.line
+        - match: \n
+          pop: true
+    - include: eol
+
+
+  mnemonics-6502-alt:
+    - match: \b(?i:BLT|BGE)\b
+      scope: keyword.mnemonic.6502.alt
+
+  numbers:
+    - match: \b\d+\b
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+\b
+      scope: constant.numeric.hex
+    - match: \%[01_]+\b
+      scope: constant.numeric.binary
+
+  strings:
+
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+
+
+  eol:
+    - match: '$'
+      pop: true
+

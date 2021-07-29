@@ -1,0 +1,34 @@
+{
+	"scope": "source.asm.sc-asm meta.directive",
+	"completions":
+	[
+		".ac",
+		".as",
+		".at",
+		".az",
+		".bs",
+		".da",
+		".do",
+		".dummy",
+		".ed",
+		".else",
+		".em",
+		".en",
+		".ep",
+		".eq",
+		".fin",
+		".hs",
+		".in",
+		".inb",
+		".list",
+		".ma",
+		".op",
+		".or",
+		".pg",
+		".ph",
+		".ta",
+		".tf",
+		".ti",
+		".us"
+	]
+}
