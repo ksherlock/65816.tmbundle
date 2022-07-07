@@ -240,3 +240,13 @@ contexts:
     - match: \b(?i:RTN|SET|LD|LDD|ST|STD|POP|POPD|STP|ADD|SUB|CPR|INR|DCR|BR|BNC|BC|BP|BM|BZ|BNZ|BM1|BNM1|BK|RS|BS)\b
       scope: keyword.mnemonic.sweet16
       set: operand
+
+  mnemonics-macpack-generic:
+      - match: \b(?i:ADD|SUB|BGE|BLT|BGT|BLE|BNZ|BZE)\b
+      scope: keyword.mnemonic.macpack.generic
+      set: operand
+
+  mnemonics-macpack-longbranch:
+      - match: \b(?i:JEQ|JNE|JMI|JPL|JCS|JCC|JVS|JVC)\b
+      scope: keyword.mnemonic.macpack.longbranch
+      set: operand
