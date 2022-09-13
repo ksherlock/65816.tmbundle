@@ -1,6 +1,7 @@
 %YAML 1.2
 ---
 name: CA65
+file_extensions: []
 scope: source.asm.ca65
 
 variables:
@@ -242,11 +243,11 @@ contexts:
       set: operand
 
   mnemonics-macpack-generic:
-      - match: \b(?i:ADD|SUB|BGE|BLT|BGT|BLE|BNZ|BZE)\b
+    - match: \b(?i:ADD|SUB|BGE|BLT|BGT|BLE|BNZ|BZE)\b
       scope: keyword.mnemonic.macpack.generic
       set: operand
 
   mnemonics-macpack-longbranch:
-      - match: \b(?i:JEQ|JNE|JMI|JPL|JCS|JCC|JVS|JVC)\b
+    - match: \b(?i:JEQ|JNE|JMI|JPL|JCS|JCC|JVS|JVC)\b
       scope: keyword.mnemonic.macpack.longbranch
       set: operand
