@@ -283,6 +283,7 @@ class OrcaMacGen(sublime_plugin.TextCommand):
 			text = view.substr(r).rstrip()
 
 			if text == "": continue
+			if text[0] in "!*": continue
 			if re_comment.match(text): continue
 			tokens = re.split(re_ws, text, maxsplit=2)
 			if len(tokens) < 2: continue
