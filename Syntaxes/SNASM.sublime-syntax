@@ -1,0 +1,272 @@
+%YAML 1.2
+---
+name: SN Assembler
+scope: source.asm.65816.sn
+
+variables:
+  ws: '[ \t]+'
+  ident: '[A-Za-z_~][A-Za-z0-9_~]*'
+
+
+
+contexts:
+  prototype:
+    - include: comment
+    - include: eol
+  main:
+
+    - meta_include_prototype: false
+
+    - match: '{{ws}}'
+      push: opcode
+
+    - match: '^({{ident}}){{ws}}((?i)SECTION)\b'
+      captures:
+        1: entity.name.function
+        2: keyword.directive
+      push: operand
+
+    - match: '^({{ident}}){{ws}}((?i)MACRO)\b'
+      captures:
+        1: entity.name.function
+        2: keyword.directive
+      push: operand-macro
+
+
+
+    - match: '^{{ident}}'
+      scope: entity.name.label
+
+    - include: comment
+
+
+  opcode:
+    - match: '{{ws}}'
+      set: operand
+
+    - include: scope:source.asm.65816#mnemonics-6502
+    - include: scope:source.asm.65816#mnemonics-65c02
+    - include: scope:source.asm.65816#mnemonics-65c02s
+    - include: scope:source.asm.65816#mnemonics-65816
+    - include: mnemonics-65816-alt
+
+    - match: \b(?i:DB|DW|DT|DL)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:HEX)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:DS|DCB)\b
+      scope: keyword.directive
+      set: operand
+
+      # reserve space
+    - match: \b(?i:RSRESET|RSSET|RB|RW)\b
+      scope: keyword.directive
+      set: operand
+
+
+
+    - match: \b(?i:EQU|SET)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:MACRO|ENDM|MEXIT|SHIFT)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:SECTION|GRP)\b
+      scope: keyword.directive
+      set: operand-section
+
+    - match: \b(?i:ORG|END|OPT|MX)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:XDEF|XREF)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:ASSUME)\b
+      scope: keyword.directive
+      set: operand
+
+
+    - match: \b(?i:MODULE|MODEND)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:REPT|ENDR)\b
+      scope: keyword.directive.keyword.control
+      set: operand
+
+    - match: \b(?i:CASE|ENDCASE)\b
+      scope: keyword.directive.keyword.control
+      set: operand
+
+    - match: \b(?i:WHILE|ENDW)\b
+      scope: keyword.directive.keyword.control
+      set: operand
+
+    - match: \b(?i:DO|UNTIL)\b
+      scope: keyword.directive.keyword.control
+      set: operand
+
+    - match: \b(?i:IF|ELSE|ENDIF)\b
+      scope: keyword.directive.keyword.control
+      set: operand
+
+
+    - match: \b(?i:PUBLIC)\b
+      scope: keyword.directive
+      set: operand-on-off
+
+
+    - match: \b(?i:LIST|NOLIST)\b
+      scope: keyword.directive
+      set: operand
+
+    - match: \b(?i:INFORM)\b
+      scope: keyword.directive
+      set: operand
+
+  operand:
+    - include: numbers
+    - include: strings
+
+
+    - match: \b(?i:__MX|__RS|_RADIX|_RCOUNT|_FILENAME|_CURRENT_FILE|_CURRENT_LINE)\b
+      scope: keyword.directive
+
+    - match: \b(?i:NARG)\b
+      scope: keyword.directive
+
+    - match: \b(?i:_YEAR|_MONTH|_DAY|_WEEKDAY|_HOURS|_MINUTES|_SECONDS)\b
+      scope: support.constant
+
+    - match: \b(?i:DEF|REF|TYPE|STRCMP|STRICMP|STRLEN|SUBSTR|GROUPEND|SECTEND|GROUPORG|SECTSIZE|GROUPSIZE|ALIGNMENT|SECT|OFFSET|FILESIZE|SQRT)\b
+      scope: support.function
+
+
+  operand-section:
+    - match: '\b{{ident}}\b'
+      scope: entity.name.function
+      set: expect-comment
+    - include: expect-comment
+
+  operand-on-off:
+    - match: \b(?i:ON|OFF)\b
+      scope: constant.language
+      set: expect-comment
+    - include: expect-comment
+
+
+  operand-import:
+    - match: ([^; \n\t]+)
+      scope: string.unquoted
+
+  operand-ascii:
+    - meta_include_prototype: false
+    - match: '{{ws}}'
+    - match: '([^\r\n|]+)'
+      scope: string.unquoted
+    - match: \|
+      set: comment
+    - include: eol
+
+  operand-fcc:
+    - match: (\S)
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted
+        - match: \1
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal
+          pop: true
+
+
+  operand-macro:
+    - match: '\b{{ident}}\b'
+      scope: variable.parameter
+
+  # comment char
+  # ...
+  # char
+  operand-comment:
+    - meta_include_prototype: false
+
+    - match: (\S)
+      scope: punctuation.definition.comment.begin.asm
+      set: [comment, comment-block]
+
+    - match: \n
+      scope: invalid.illegal.newline.asm
+      pop: true
+
+  comment-block:
+    - meta_include_prototype: false
+    - meta_scope: comment.block
+    - match: \1
+      scope: punctuation.definition.comment.end.asm
+      pop: true # pops to comment.
+
+
+  numbers:
+    - match: \b\d+\b
+      scope: constant.numeric
+    - match: \$[0-9a-fA-F]+\b
+      scope: constant.numeric.hex
+    - match: \%[01]+\b
+      scope: constant.numeric.binary
+
+  strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single
+        - match: "'"
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double
+        - match: '"'
+          scope: punctuation.definition.string.end
+          pop: true
+        - match: \n
+          scope: invalid.illegal.newline.asm
+          pop: true
+
+  expect-comment:
+    - include: comment
+    - match: \S
+      scope: invalid.illegal.expect.comment
+
+  comment:
+    - match: ;
+      push:
+        - meta_scope: comment.line.partial
+        - match: \n
+          pop: true
+    - include: eol
+
+
+  mnemonics-65816-alt:
+    - match: \b(?i:BLT|BGE|CPA|DEA|INA|RET|SWA|TAD|TAS|TDA|TSA|XOR)\b
+      scope: keyword.mnemonic.65816.alt
+
+
+  eol:
+    - match: '$'
+      pop: true
