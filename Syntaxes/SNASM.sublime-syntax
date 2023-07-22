@@ -3,9 +3,11 @@
 name: SN Assembler
 scope: source.asm.65816.sn
 
+# @ is the default local prefix, but /opt l can change it. : was common.
 variables:
   ws: '[ \t]+'
-  ident: '[A-Za-z_~][A-Za-z0-9_~]*'
+  ident: '[A-Za-z_.][A-Za-z0-9_.]*'
+  local: '[@:][A-Za-z0-9_.]+'
 
 
 
@@ -20,7 +22,7 @@ contexts:
     - match: '{{ws}}'
       push: opcode
 
-    - match: '^({{ident}}){{ws}}((?i)SECTION)\b'
+    - match: '^({{ident}}){{ws}}((?i)MODULE)\b'
       captures:
         1: entity.name.function
         2: keyword.directive
@@ -35,7 +37,11 @@ contexts:
 
 
     - match: '^{{ident}}'
-      scope: entity.name.label
+      scope: entity.name.function
+
+    - match: '^{{local}}'
+      scope: entity.name.label.local
+
 
     - include: comment
 
@@ -114,7 +120,7 @@ contexts:
       scope: keyword.directive.keyword.control
       set: operand
 
-    - match: \b(?i:IF|ELSE|ENDIF)\b
+    - match: \b(?i:IF|ELSE|ENDIF|ENDC)\b
       scope: keyword.directive.keyword.control
       set: operand
 
@@ -131,6 +137,11 @@ contexts:
     - match: \b(?i:INFORM)\b
       scope: keyword.directive
       set: operand
+
+    - match: \b(?i:INCLUDE|INCBIN)\b
+      scope: keyword.directive
+      set: operand-path
+
 
   operand:
     - include: numbers
@@ -163,9 +174,6 @@ contexts:
     - include: expect-comment
 
 
-  operand-import:
-    - match: ([^; \n\t]+)
-      scope: string.unquoted
 
   operand-ascii:
     - meta_include_prototype: false
@@ -189,6 +197,8 @@ contexts:
           scope: invalid.illegal
           pop: true
 
+  operand-path:
+    - include: strings
 
   operand-macro:
     - match: '\b{{ident}}\b'
@@ -263,7 +273,7 @@ contexts:
 
 
   mnemonics-65816-alt:
-    - match: \b(?i:BLT|BGE|CPA|DEA|INA|RET|SWA|TAD|TAS|TDA|TSA|XOR)\b
+    - match: \b(?i:BLT|BGE|CPA|DEA|INA|SWA|TAD|TAS|TDA|TSA)\b
       scope: keyword.mnemonic.65816.alt
 
 
