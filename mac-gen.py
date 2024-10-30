@@ -37,36 +37,36 @@ def macro_files(dirs, filter):
 
 	return rv
 
+
+
 re_pmc = re.compile('^[^.,/\\- ]*')
 re_dot_s = re.compile('\\.S$', re.IGNORECASE)
 re_ws = re.compile('[\t ]+')
 re_comment = re.compile('^[\t ]*[;*]')
 
+class CommonMacGen(sublime_plugin.TextCommand):
 
-class MerlinMacGen(sublime_plugin.TextCommand):
 
-	opcodes = {
-		'BRL', 'COP', 'JML', 'JMPL', 'JSL', 'MVN', 'MVP', 'MX', 'PEA',
-		'PEI', 'PER', 'REP', 'SEP', 'WDM', 'XCE', 'ADR', 'ADRL', 'ASC',
-		'AST', 'BRK', 'CHK', 'CYC', 'DA', 'DAT', 'DB', 'DCI', 'DDB', 'DEND',
-		'DFB', 'DL', 'DS', 'DSK', 'DUM', 'DW', 'END', 'ENT', 'EQU', 'ERR', 'EXP',
-		'EXT', 'FLS', 'HEX', 'INV', 'KBD', 'LST', 'LSTL', 'LUP', 'OBJ',
-		'ORG', 'PAG', 'PAU', 'PMC', 'PUT', 'REL', 'REV', 'SAV', 'SKP',
-		'STR', 'TR', 'TTL', 'TYP', 'USE', 'USR', 'VAR', 'XC', 'XREF','=',
-		'>>>', 'DO', 'ELS', 'EOM', 'FIN', 'IF', 'MAC', '--^', '<<<',
-		'CLC', 'CLD', 'CLI', 'CLV', 'DEX', 'DEY', 'INX', 'INY', 'NOP',
-		'PHA', 'PHB', 'PHD', 'PHK', 'PHX', 'PHY', 'PLA', 'PLB', 'PLD',
-		'PLP', 'PLX', 'PLY', 'RTI', 'RTL', 'RTS', 'SEC', 'SED', 'SEI',
-		'STP', 'SWA', 'TAD', 'TAS', 'TAX', 'TAY', 'TCD', 'TCS', 'TDA',
-		'TDC', 'TSA', 'TSC', 'TSX', 'TXA', 'TXS', 'TXY', 'TYA', 'TYX',
-		'WAI', 'XBA', 'BCC', 'BCS', 'BEQ', 'BGE', 'BLT', 'BMI', 'BNE',
-		'BPL', 'BRA', 'BVC', 'BVS', 'ADCL', 'ANDL', 'CMPL', 'EORL',
-		'LDAL', 'ORAL', 'SBCL', 'STAL', 'ADC', 'AND', 'ASL', 'BIT',
-		'CMP', 'CPX', 'CPY', 'DEC', 'EOR', 'INC', 'JMP', 'JSR', 'LDA',
-		'LDX', 'LDY', 'LSR', 'ORA', 'ROL', 'ROR', 'SBC', 'STA', 'STX',
-		'STY', 'STZ', 'TRB', 'TSB', 'PHP', 'STRL', 'FLO', 'EXD', 'CAS',
-		''
-	}
+	def run(self, edit):
+
+		view = self.view
+
+		missing = set()
+		known = set()
+		self.build_missing(known, missing)
+
+		if len(missing) == 0: return
+
+		buffer = ""
+		files = self.build_file_list()
+
+		for f in files:
+			buffer += self.one_macro_file(f, known, missing)
+			if len(missing) == 0: break;
+
+		buffer = self.front_matter() + self.missing_matter(missing) + buffer
+
+		self.create_macro_file(buffer)
 
 	def front_matter(self):
 		buffer = ""
@@ -93,32 +93,54 @@ class MerlinMacGen(sublime_plugin.TextCommand):
 		buffer += "\n"
 		return buffer
 
-
-	def run(self, edit):
-
+	def create_macro_file(self, buffer):
 		view = self.view
+		mv = view.window().new_file()
+		mv.settings().set("auto_indent", False)
+		mv.run_command('insert', {'characters': buffer})
 
-		missing = set()
-		known = set()
-		self.build_missing(known, missing)
 
-		if len(missing) == 0: return
+	# override these:
+	def build_missing(self, known, missing):
+		pass
 
-		buffer = ""
-		dirlist = view.settings().get('merlin_macro_directories', [])
+	def build_file_list(self):
+		return []
+
+	def one_macro_file(self, file, known, missing):
+		return ""
+
+
+class MerlinMacGen(CommonMacGen):
+
+	opcodes = {
+		'BRL', 'COP', 'JML', 'JMPL', 'JSL', 'MVN', 'MVP', 'MX', 'PEA',
+		'PEI', 'PER', 'REP', 'SEP', 'WDM', 'XCE', 'ADR', 'ADRL', 'ASC',
+		'AST', 'BRK', 'CHK', 'CYC', 'DA', 'DAT', 'DB', 'DCI', 'DDB', 'DEND',
+		'DFB', 'DL', 'DS', 'DSK', 'DUM', 'DW', 'END', 'ENT', 'EQU', 'ERR', 'EXP',
+		'EXT', 'FLS', 'HEX', 'INV', 'KBD', 'LST', 'LSTL', 'LUP', 'OBJ',
+		'ORG', 'PAG', 'PAU', 'PMC', 'PUT', 'REL', 'REV', 'SAV', 'SKP',
+		'STR', 'TR', 'TTL', 'TYP', 'USE', 'USR', 'VAR', 'XC', 'XREF','=',
+		'>>>', 'DO', 'ELS', 'EOM', 'FIN', 'IF', 'MAC', '--^', '<<<',
+		'CLC', 'CLD', 'CLI', 'CLV', 'DEX', 'DEY', 'INX', 'INY', 'NOP',
+		'PHA', 'PHB', 'PHD', 'PHK', 'PHX', 'PHY', 'PLA', 'PLB', 'PLD',
+		'PLP', 'PLX', 'PLY', 'RTI', 'RTL', 'RTS', 'SEC', 'SED', 'SEI',
+		'STP', 'SWA', 'TAD', 'TAS', 'TAX', 'TAY', 'TCD', 'TCS', 'TDA',
+		'TDC', 'TSA', 'TSC', 'TSX', 'TXA', 'TXS', 'TXY', 'TYA', 'TYX',
+		'WAI', 'XBA', 'BCC', 'BCS', 'BEQ', 'BGE', 'BLT', 'BMI', 'BNE',
+		'BPL', 'BRA', 'BVC', 'BVS', 'ADCL', 'ANDL', 'CMPL', 'EORL',
+		'LDAL', 'ORAL', 'SBCL', 'STAL', 'ADC', 'AND', 'ASL', 'BIT',
+		'CMP', 'CPX', 'CPY', 'DEC', 'EOR', 'INC', 'JMP', 'JSR', 'LDA',
+		'LDX', 'LDY', 'LSR', 'ORA', 'ROL', 'ROR', 'SBC', 'STA', 'STX',
+		'STY', 'STZ', 'TRB', 'TSB', 'PHP', 'STRL', 'FLO', 'EXD', 'CAS',
+		''
+	}
+
+
+	def build_file_list(self):
+		dirlist = self.view.settings().get('merlin_macro_directories', [])
 		files = macro_files(dirlist, lambda x: x[-2:].upper() == ".S")
-		print(files)
-
-
-		for f in files:
-			buffer += self.one_macro_file(f, known, missing)
-			if len(missing) == 0: break;
-
-
-		buffer = self.front_matter() + self.missing_matter(missing) + buffer
-
-		view = view.window().new_file()
-		view.insert(edit, 0, buffer)
+		return files
 
 	def build_missing(self, known, missing):
 
@@ -135,7 +157,7 @@ class MerlinMacGen(sublime_plugin.TextCommand):
 				continue
 
 			# _macro args
-			# PMC _macro,args << .  /  ,  -  (  Space are separtors.
+			# PMC _macro,args << .  /  ,  -  (  Space are separators.
 			# >>> _macro
 
 			label = tokens[0].upper()
@@ -162,9 +184,6 @@ class MerlinMacGen(sublime_plugin.TextCommand):
 			if opcode in known:
 				continue
 			missing.add(opcode)
-
-
-
 
 	def one_macro_file(self, file, known, missing):
 		inmac = False
@@ -223,7 +242,7 @@ class MerlinMacGen(sublime_plugin.TextCommand):
 		return buffer
 
 
-class OrcaMacGen(sublime_plugin.TextCommand):
+class OrcaMacGen(CommonMacGen):
 
 
 	opcodes = {
@@ -251,29 +270,10 @@ class OrcaMacGen(sublime_plugin.TextCommand):
 		}
 
 
-	def run(self, edit):
-
-		view = self.view
-
-		known = set()
-		missing = set()
-		self.build_missing(known, missing)
-
-		if len(missing) == 0: return
-
-		buffer = ""
-		dirlist = view.settings().get('orca_macro_directories', [])
+	def build_file_list(self):
+		dirlist = self.view.settings().get('orca_macro_directories', [])
 		files = macro_files(dirlist, lambda x: x[:4].upper() == "M16.")
-		#print(files)
-		for f in files:
-			buffer += self.one_macro_file(f, known, missing)
-			if len(missing) == 0: break;
-
-		buffer = self.front_matter() + self.missing_matter(missing) + buffer
-
-		view = view.window().new_file()
-		view.insert(edit, 0, buffer)
-
+		return files
 
 	def build_missing(self, known, missing):
 
@@ -314,7 +314,6 @@ class OrcaMacGen(sublime_plugin.TextCommand):
 			label = tokens[0].upper()
 			opcode = tokens[1].upper()
 
-
 			if state == 0:
 				if opcode == 'MACRO': state = 1
 			elif state == 1:
@@ -335,34 +334,8 @@ class OrcaMacGen(sublime_plugin.TextCommand):
 
 		return buffer
 
-	def front_matter(self):
-		buffer = ""
-		name = self.view.file_name()
-		if name:
-			buffer += "* Generated from " + os.path.basename(name) + " on " + time.asctime() + "\n"
-		else:
-			buffer += "* Generated on " + time.asctime() + "\n"
-		buffer += "\n"
-		return buffer
 
-	def missing_matter(self, missing):
-		buffer = ""
-		if len(missing) == 0:
-			return ""
-
-		buffer = "* Missing Macros\n"
-
-		missing = list(missing)
-		missing.sort
-		for macro in missing:
-			buffer += "* " + macro + "\n"
-
-		buffer += "\n"
-		return buffer
-
-
-
-class MpwMacGen(sublime_plugin.TextCommand):
+class MpwMacGen(CommonMacGen):
 
 
 	opcodes = {
@@ -397,29 +370,10 @@ class MpwMacGen(sublime_plugin.TextCommand):
 		}
 
 
-	def run(self, edit):
-
-		view = self.view
-
-		known = set()
-		missing = set()
-		self.build_missing(known, missing)
-
-		if len(missing) == 0: return
-
-		buffer = ""
-		dirlist = view.settings().get('mpw_macro_directories', [])
+	def build_file_list(self):
+		dirlist = self.view.settings().get('mpw_macro_directories', [])
 		files = macro_files(dirlist, lambda x: x[:4].upper() == "M16.")
-		#print(files)
-		for f in files:
-			buffer += self.one_macro_file(f, known, missing)
-			if len(missing) == 0: break;
-
-		buffer = self.front_matter() + self.missing_matter(missing) + buffer
-
-		view = view.window().new_file()
-		view.insert(edit, 0, buffer)
-
+		return files
 
 	def build_missing(self, known, missing):
 
@@ -450,8 +404,6 @@ class MpwMacGen(sublime_plugin.TextCommand):
 				missing.discard(opcode)
 				state = 0
 				continue
-
-
 
 			if opcode in self.opcodes: continue
 			if opcode in known: continue
@@ -496,29 +448,4 @@ class MpwMacGen(sublime_plugin.TextCommand):
 					missing.add(opcode)
 
 
-		return buffer
-
-	def front_matter(self):
-		buffer = ""
-		name = self.view.file_name()
-		if name:
-			buffer += "* Generated from " + os.path.basename(name) + " on " + time.asctime() + "\n"
-		else:
-			buffer += "* Generated on " + time.asctime() + "\n"
-		buffer += "\n"
-		return buffer
-
-	def missing_matter(self, missing):
-		buffer = ""
-		if len(missing) == 0:
-			return ""
-
-		buffer = "* Missing Macros\n"
-
-		missing = list(missing)
-		missing.sort
-		for macro in missing:
-			buffer += "* " + macro + "\n"
-
-		buffer += "\n"
 		return buffer
