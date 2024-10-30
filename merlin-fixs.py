@@ -1,61 +1,117 @@
 import sublime
 import sublime_plugin
 
-SPACE = [" ", "\t"]
-QUOTES = ["'", '"']
 
+TABS = (10, 15, 28)
+STROPS = set((b'ASC', b'DCI', b'FLS', b'INV', b'REV' b'STR', b'STRL'))
+XDIGITS = set("0123456789ABCDEFabcdef")
+DQ = '"'
+SQ = "'"
+WS = " \t"
+QUOTES = "\"'"
 
-#
-# need to do something clever for ; comments to put in comment field?
-#
+def tab_to(line, ts):
+	pos = TABS[ts-1]
+	line.append(0x20)
+	while len(line) < pos: line.append(0x20)
+
 def fixs(s):
+	q = 0
+	st = 0
+	opc = bytearray()
+	rv = bytearray()
 
-	f = 0
-	q = None
-	sp = False
-	comment = False
-
-	rv = ''
-	if not len(s): return s
-	if s[0] == "*": comment = True
-	if s[0] == ";": comment = True ; rv = "\t\t\t"
 	for c in s:
-
-		if comment:
-			if c == "\t": c = " "
-			rv += c
+		if c == "\t": c = " "
+		cc = ord(c)
+		if st == 0:
+			if c == " ":
+				st = 2
+				continue
+			if c == "*":
+				st = 7
+			elif c == ";":
+				st = 7
+				tab_to(rv, 3)
+			else:
+				st += 1
+			rv.append(cc)
 			continue
 
-		if q:
-			rv += c
-			if c == q: q = None
+		if st == 1:
+			# label
+			if c == " ":
+				st += 1
+				continue
+			rv.append(cc)
+
+		if st == 2:
+			# label ws
+			if c == " ": continue
+			if c == "*" and len(rv) == 0:
+				st = 7
+			elif c == ";":
+				st = 7
+				tab_to(rv, 3)
+			else:
+				tab_to(rv, 1)
+				st += 1
+				opc.append(cc & ~0x20)
+			rv.append(cc)
 			continue
 
-		if c in QUOTES:
-			rv += c
-			q = c
-			sp = False
+		if st == 3:
+			# opcode
+			if c == " ":
+				st += 1;
+				continue
+			rv.append(cc)
+			opc.append(cc & ~0x20)
 			continue
 
-		if c in SPACE:
-			if sp: continue
-			f += 1
-			c = "\t"
-			sp = True
-			rv += c
+		if st == 4:
+			# opcode ws
+			if c == " ": continue
+			if c == ";":
+				st = 7
+				tab_to(rv, 3)
+			else:
+				st += 1
+				if bytes(opc) in STROPS and c not in XDIGITS: q = c
+				if c in QUOTES: q = c
+				tab_to(rv, 2)
+			rv.append(cc)
 			continue
 
-		if sp:
-			if c == ';':
-				comment = True
-				rv += "\t" * (3-f)
-			elif f == 3:
-				comment = True
-				rv += "; "
-		sp = False
-		rv += c
+		if st == 5:
+			# operand
+			if q:
+				rv.append(cc)
+				if q == cc: q = 0
+				continue
+			if c == " ":
+				st += 1
+				continue
+			rv.append(cc)
+			if c in QUOTES: q = cc
+			continue
 
-	return rv;
+		if st == 6:
+			# operand ws
+			if c == " ": continue
+			# insert ; ????
+			st += 1
+			tab_to(rv, 3)
+			rv.append(cc)
+			continue
+
+		if st == 7:
+			# comment
+			rv.append(cc)
+
+	#
+	return rv.decode('ascii')
+
 
 
 class MerlinFixs(sublime_plugin.TextCommand):
