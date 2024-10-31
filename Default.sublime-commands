@@ -16,6 +16,10 @@
 		"command": "orca_mac_gen"
 	},
 	{
+		"caption": "ORCA/M Indent",
+		"command": "orca_indent"
+	},
+	{
 		"caption": "MPW Asm IIgs MacGen",
 		"command": "mpw_mac_gen"
 	}
