@@ -10,6 +10,8 @@ SQ = "'"
 WS = " \t"
 QUOTES = "\"'"
 
+ST_COMMENT = 8
+
 def tab_to(line, ts):
 	pos = TABS[ts-1]
 	line.append(0x20)
@@ -29,9 +31,9 @@ def fixs(s):
 				st = 2
 				continue
 			if c == "*":
-				st = 7
+				st = ST_COMMENT
 			elif c == ";":
-				st = 7
+				st = ST_COMMENT
 				tab_to(rv, 3)
 			else:
 				st += 1
@@ -49,9 +51,9 @@ def fixs(s):
 			# label ws
 			if c == " ": continue
 			if c == "*" and len(rv) == 0:
-				st = 7
+				st = ST_COMMENT
 			elif c == ";":
-				st = 7
+				st = ST_COMMENT
 				tab_to(rv, 3)
 			else:
 				tab_to(rv, 1)
@@ -73,12 +75,15 @@ def fixs(s):
 			# opcode ws
 			if c == " ": continue
 			if c == ";":
-				st = 7
+				st = ST_COMMENT
 				tab_to(rv, 3)
 			else:
 				st += 1
-				if bytes(opc) in STROPS and c not in XDIGITS: q = c
-				if c in QUOTES: q = c
+				b_opc = bytes(opc)
+				if b_opc in STROPS and c not in XDIGITS: q = cc
+				if c in QUOTES: q = cc
+				if b_opc == b'IF': st += 1
+				if b_opc == b'ASC' and c == '#': st += 1
 				tab_to(rv, 2)
 			rv.append(cc)
 			continue
@@ -90,13 +95,20 @@ def fixs(s):
 				if q == cc: q = 0
 				continue
 			if c == " ":
-				st += 1
+				st += 2
 				continue
 			rv.append(cc)
 			if c in QUOTES: q = cc
 			continue
 
 		if st == 6:
+			# operand w/o quoting
+			if c == " ":
+				st += 1
+			else:
+				rv.append(cc)
+
+		if st == 7:
 			# operand ws
 			if c == " ": continue
 			# insert ; ????
@@ -105,9 +117,11 @@ def fixs(s):
 			rv.append(cc)
 			continue
 
-		if st == 7:
+		if st == 8:
 			# comment
 			rv.append(cc)
+			continue
+
 
 	#
 	return rv.decode('ascii')
