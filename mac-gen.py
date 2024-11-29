@@ -133,6 +133,7 @@ class MerlinMacGen(CommonMacGen):
 		'CMP', 'CPX', 'CPY', 'DEC', 'EOR', 'INC', 'JMP', 'JSR', 'LDA',
 		'LDX', 'LDY', 'LSR', 'ORA', 'ROL', 'ROR', 'SBC', 'STA', 'STX',
 		'STY', 'STZ', 'TRB', 'TSB', 'PHP', 'STRL', 'FLO', 'EXD', 'CAS',
+		'ELSE', # processed as ELS
 		''
 	}
 
