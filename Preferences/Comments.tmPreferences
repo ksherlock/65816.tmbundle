@@ -5,7 +5,7 @@
 	<key>name</key>
 	<string>Comments</string>
 	<key>scope</key>
-	<string>source.asm.65816</string>
+	<string>source.asm.65816,source.asm.ca65</string>
 	<key>settings</key>
 	<dict>
 		<key>shellVariables</key>
