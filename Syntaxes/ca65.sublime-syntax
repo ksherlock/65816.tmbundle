@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 name: CA65
-file_extensions: []
+file_extensions: [s, asm, assembly]
 scope: source.asm.ca65
 
 variables:
@@ -12,16 +12,32 @@ contexts:
     - match: $
       pop: true
 
+  comment:
+    - match: ;
+      scope: punctuation.definition.comment.ca65
+      push:
+        - meta_include_prototype: false
+        - meta_scope: comment.line.ca65
+        - match: \n
+          pop: true
+    - match: /\*
+      scope: punctuation.definition.comment.begin.ca65
+      push:
+        - meta_include_prototype: false
+        - meta_scope: comment.block.ca65
+        - match: \*/
+          scope: punctuation.definition.comment.end.ca65
+          pop: true
+
   main:
     - meta_include_prototype: false
-
+    - include: comment
 
     - match: \b({{ident}})\s*(:?=)
       push: operand
       captures:
         1: entity.name.constant.ca65
         2: keyword.operator.assignment.ca65
-
 
     - match: '\b{{ident}}:'
       scope: entity.name.label
@@ -34,14 +50,6 @@ contexts:
     - match: ':'
       scope: entity.name.label.anonymous
       oush: opcode
-
-    - match: ;
-      scope: punctuation.definition.comment.ca65
-      push:
-        - meta_include_prototype: false
-        - meta_scope: comment.line.ca65
-        - match: \n
-          pop: true
 
     - match: (\.(?i:proc))\s+({{ident}})\b
       captures:
@@ -81,8 +89,6 @@ contexts:
     - match: \,
     - match: \S
       scope: invalid.illegal
-
-
 
   opcode:
     - meta_content_scope: meta.opcode
@@ -176,16 +182,6 @@ contexts:
       scope: constant.numeric.hex.ca65
     - match: \%[01]+\b
       scope: constant.numeric.binary.ca65
-
-
-  comment:
-    - match: ;
-      scope: punctuation.definition.comment.ca65
-      push:
-        - meta_include_prototype: false
-        - meta_scope: comment.line.ca65
-        - match: \n
-          pop: true
 
   strings:
     - match: '"'
