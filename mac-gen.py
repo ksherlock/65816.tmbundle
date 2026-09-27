@@ -86,7 +86,7 @@ class CommonMacGen(sublime_plugin.TextCommand):
 		buffer = "* Missing Macros\n"
 
 		missing = list(missing)
-		missing.sort
+		missing.sort()
 		for macro in missing:
 			buffer += "* " + macro + "\n"
 
