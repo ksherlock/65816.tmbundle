@@ -3,7 +3,7 @@ import sublime_plugin
 
 
 TABS = (10, 15, 28)
-STROPS = set((b'ASC', b'DCI', b'FLS', b'INV', b'REV' b'STR', b'STRL'))
+STROPS = set((b'ASC', b'DCI', b'FLS', b'INV', b'REV', b'STR', b'STRL'))
 XDIGITS = set("0123456789ABCDEFabcdef")
 DQ = '"'
 SQ = "'"
